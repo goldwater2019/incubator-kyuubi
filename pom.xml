@@ -104,7 +104,7 @@
         <curator.version>2.12.0</curator.version>
         <delta.version>1.1.0</delta.version>
         <fb303.version>0.9.3</fb303.version>
-        <flink.version>1.14.3</flink.version>
+        <flink.version>1.14.4</flink.version>
         <flink.archive.name>flink-${flink.version}-bin-scala_${scala.binary.version}.tgz</flink.archive.name>
         <flink.archive.mirror>${apache.archive.dist}/flink/flink-${flink.version}</flink.archive.mirror>
         <flink.archive.download.skip>false</flink.archive.download.skip>
@@ -140,7 +140,7 @@
           DO NOT forget to change the following properties when change the minor version of Spark:
           `delta.version`, `iceberg.name`, `maven.plugin.scalatest.exclude.tags`
           -->
-        <spark.version>3.2.1</spark.version>
+        <spark.version>3.1.2</spark.version>
         <spark.archive.name>spark-${spark.version}-bin-hadoop3.2.tgz</spark.archive.name>
         <spark.archive.mirror>${apache.archive.dist}/spark/spark-${spark.version}</spark.archive.mirror>
         <spark.archive.download.skip>false</spark.archive.download.skip>
@@ -221,6 +221,7 @@
     </repositories>
 
     <pluginRepositories>
+
         <pluginRepository>
             <id>gcs-maven-central-mirror</id>
             <name>GCS Maven Central mirror Asia Pacific</name>
@@ -244,6 +245,89 @@
             </snapshots>
         </pluginRepository>
     </pluginRepositories>
+
+<!--    <repositories>-->
+<!--        <repository>-->
+<!--            <id>aliyun-maven-central</id>-->
+<!--            <name>aliyun maven central</name>-->
+<!--            <url>https://maven.aliyun.com/repository/central</url>-->
+<!--            <layout>default</layout>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+
+<!--        <repository>-->
+<!--            <id>aliyun-maven-apache-snapshot</id>-->
+<!--            <name>aliyun maven apache snapshot</name>-->
+<!--            <url>https://maven.aliyun.com/repository/apache-snapshots</url>-->
+<!--            <layout>default</layout>-->
+<!--            <releases>-->
+<!--                <enabled>false</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+
+<!--        <repository>-->
+<!--            <id>ane56-thirdparty</id>-->
+<!--            <name>ane56 Repository thirdparty</name>-->
+<!--            <url>http://maven.ane56.com:8081/repository/public/</url>-->
+<!--            <layout>default</layout>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </repository>-->
+<!--    </repositories>-->
+
+<!--    <pluginRepositories>-->
+<!--        <pluginRepository>-->
+<!--            <id>aliyun-maven-central</id>-->
+<!--            <name>aliyun maven central</name>-->
+<!--            <url>https://maven.aliyun.com/repository/central</url>-->
+<!--            <layout>default</layout>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </pluginRepository>-->
+
+<!--        <pluginRepository>-->
+<!--            <id>aliyun-maven-apache-snapshot</id>-->
+<!--            <name>aliyun maven apache snapshot</name>-->
+<!--            <url>https://maven.aliyun.com/repository/apache-snapshots</url>-->
+<!--            <layout>default</layout>-->
+<!--            <releases>-->
+<!--                <enabled>false</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>true</enabled>-->
+<!--            </snapshots>-->
+<!--        </pluginRepository>-->
+
+<!--        <pluginRepository>-->
+<!--            <id>ane56-thirdparty</id>-->
+<!--            <name>ane56 Repository thirdparty</name>-->
+<!--            <layout>default</layout>-->
+<!--            <url>http://maven.ane56.com:8081/repository/public/</url>-->
+<!--            <releases>-->
+<!--                <enabled>true</enabled>-->
+<!--            </releases>-->
+<!--            <snapshots>-->
+<!--                <enabled>false</enabled>-->
+<!--            </snapshots>-->
+<!--        </pluginRepository>-->
+<!--    </pluginRepositories>-->
+
 
     <dependencyManagement>
         <dependencies>
@@ -1827,7 +1911,8 @@
             <id>mirror-cdn</id>
             <!-- this profile works only for latest apache releases -->
             <properties>
-                <apache.archive.dist>https://dlcdn.apache.org</apache.archive.dist>
+                <!-- <apache.archive.dist>https://dlcdn.apache.org</apache.archive.dist>  -->
+                <apache.archive.dist>https://mirrors.aliyun.com/apache</apache.archive.dist>
             </properties>
         </profile>
 

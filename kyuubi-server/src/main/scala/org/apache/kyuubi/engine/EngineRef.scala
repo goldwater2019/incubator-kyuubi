@@ -197,9 +197,9 @@ private[kyuubi] class EngineRef(
     )
 
     if (hitPatternArray.length > 0) {
-      engineType
-    } else {
       EngineType.JDBC_ENGINE
+    } else {
+      engineType
     }
   }
 

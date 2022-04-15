@@ -91,12 +91,14 @@ cmd="${RUNNER} ${KYUUBI_JAVA_OPTS} -cp ${KYUUBI_CLASSPATH} $CLASS"
 pid="${KYUUBI_PID_DIR}/kyuubi-$USER-$CLASS.pid"
 
 function start_kyuubi() {
+  # 检查pid是有具有写权限
   if [[ ! -w ${KYUUBI_PID_DIR} ]]; then
     echo "${USER} does not have 'w' permission to ${KYUUBI_PID_DIR}"
     exit 1
   fi
 
   if [[ ! -w ${KYUUBI_LOG_DIR} ]]; then
+    # 检查log 是否有写权限
     echo "${USER} does not have 'w' permission to ${KYUUBI_LOG_DIR}"
     exit 1
   fi

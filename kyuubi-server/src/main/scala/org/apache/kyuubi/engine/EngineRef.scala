@@ -21,6 +21,7 @@ import java.util.UUID
 import java.util.concurrent.TimeUnit
 
 import scala.util.Random
+import scala.util.matching.Regex
 
 import com.codahale.metrics.MetricRegistry
 import com.google.common.annotations.VisibleForTesting
@@ -33,7 +34,7 @@ import org.apache.kyuubi.{KYUUBI_VERSION, KyuubiSQLException, Logging, Utils}
 import org.apache.kyuubi.config.KyuubiConf
 import org.apache.kyuubi.config.KyuubiConf._
 import org.apache.kyuubi.config.KyuubiReservedKeys.KYUUBI_ENGINE_SUBMIT_TIME_KEY
-import org.apache.kyuubi.engine.EngineType.{EngineType, FLINK_SQL, SPARK_SQL, TRINO}
+import org.apache.kyuubi.engine.EngineType.{EngineType, FLINK_SQL, JDBC_ENGINE, SPARK_SQL, TRINO}
 import org.apache.kyuubi.engine.ShareLevel.{CONNECTION, GROUP, SERVER, ShareLevel}
 import org.apache.kyuubi.engine.flink.FlinkProcessBuilder
 import org.apache.kyuubi.engine.spark.SparkProcessBuilder
@@ -168,6 +169,38 @@ private[kyuubi] class EngineRef(
           case _: Exception =>
         }
       }
+  };
+
+  /**
+   * 通过KyuubiServer层面appUser和配置的匹配规则进行判断, 是否需要进入到JDBC引擎中
+   * TODO 待测试, 白名单匹配规则配置是否生效
+   * @param appUser
+   * @param engineType
+   * @param conf
+   * @return
+   */
+  def checkoutRealEngineType(appUser: String,
+                             engineType: EngineType,
+                             conf: KyuubiConf):
+  EngineType = {
+    val jdbcEngineUserPatterns = conf.get(ENGINE_JDBC_USER_PATTERNS).getOrElse("")
+    val patternArray : Array[String] = jdbcEngineUserPatterns.split(",").map(
+      x => x.trim
+    ).filter(
+      x => x.nonEmpty
+    )
+
+    val hitPatternArray: Array[String] = patternArray.filter(
+      pattern => {
+        new Regex(pattern).findFirstIn(appUser).nonEmpty
+      }
+    )
+
+    if (hitPatternArray.length > 0) {
+      engineType
+    } else {
+      EngineType.JDBC_ENGINE
+    }
   }
 
   private def create(
@@ -180,8 +213,13 @@ private[kyuubi] class EngineRef(
     conf.set(HA_ZK_NAMESPACE, engineSpace)
     conf.set(HA_ZK_ENGINE_REF_ID, engineRefId)
     val started = System.currentTimeMillis()
-    conf.set(KYUUBI_ENGINE_SUBMIT_TIME_KEY, String.valueOf(started))
-    val builder = engineType match {
+    conf.set(KYUUBI_ENGINE_SUBMIT_TIME_KEY, String.valueOf(started));
+
+    // appUser和engineType -> 确定到底用什么engine
+
+    val realEngineType: EngineType = checkoutRealEngineType(appUser, engineType, conf);
+
+    val builder = realEngineType match {
       case SPARK_SQL =>
         conf.setIfMissing(SparkProcessBuilder.APP_KEY, defaultEngineName)
         // tag is a seq type with comma-separated
@@ -200,6 +238,9 @@ private[kyuubi] class EngineRef(
         new FlinkProcessBuilder(appUser, conf, extraEngineLog)
       case TRINO =>
         new TrinoProcessBuilder(appUser, conf, extraEngineLog)
+      case JDBC_ENGINE =>
+        new TrinoProcessBuilder(appUser, conf, extraEngineLog);
+        // 此处用JDBC_ENGINE 替代 trino/presto
     }
 
     MetricsSystem.tracing(_.incCount(ENGINE_TOTAL))

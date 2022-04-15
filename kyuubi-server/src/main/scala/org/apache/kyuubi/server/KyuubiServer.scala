@@ -29,7 +29,7 @@ import org.apache.zookeeper.KeeperException.NodeExistsException
 
 import org.apache.kyuubi._
 import org.apache.kyuubi.config.KyuubiConf
-import org.apache.kyuubi.config.KyuubiConf.{FRONTEND_PROTOCOLS, FrontendProtocols}
+import org.apache.kyuubi.config.KyuubiConf.{ENGINE_JDBC_CONNECTION_URL, ENGINE_JDBC_QUERY_ROUTE, ENGINE_JDBC_USER_PATTERNS, FRONTEND_PROTOCOLS, FrontendProtocols}
 import org.apache.kyuubi.config.KyuubiConf.FrontendProtocols._
 import org.apache.kyuubi.events.{EventLogging, KyuubiServerInfoEvent}
 import org.apache.kyuubi.ha.HighAvailabilityConf._
@@ -129,7 +129,14 @@ object KyuubiServer extends Logging {
       s" ${Properties.javaVersion}")
     SignalRegister.registerLogger(logger)
     val conf = new KyuubiConf().loadFileDefaults()
-    UserGroupInformation.setConfiguration(KyuubiHadoopUtils.newHadoopConf(conf))
+    UserGroupInformation.setConfiguration(KyuubiHadoopUtils.newHadoopConf(conf));
+    // 打印一下JDBC ENGINE 相关的配置
+    val engineJdbcConnectionUrl = conf.get(ENGINE_JDBC_CONNECTION_URL).getOrElse("null")
+    val engineJdbcQueryRoute = conf.get(ENGINE_JDBC_QUERY_ROUTE).getOrElse("null")
+    val engineJdbcUserPatterns = conf.get(ENGINE_JDBC_USER_PATTERNS).getOrElse("no patterns")
+    info(s"JDBC ENGINE INFO, connection url: $engineJdbcConnectionUrl," +
+      s" query route: $engineJdbcQueryRoute, " +
+      s" jdbc user patterns: $engineJdbcUserPatterns")
     startServer(conf)
   }
 }

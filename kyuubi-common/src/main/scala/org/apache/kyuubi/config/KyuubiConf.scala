@@ -1228,5 +1228,27 @@ object KyuubiConf {
       .doc("The name of Kyuubi Server.")
       .version("1.5.0")
       .stringConf
+      .createOptional;
+
+  // add by xinsen, 用于拓展jdbc 引擎侧的内容
+  val ENGINE_JDBC_CONNECTION_URL: OptionalConfigEntry[String] =
+    buildConf("session.engine.jdbc.connection.url")
+      .doc("The server url that jdbc engine will connect to")
+      .version("1.5.0")
+      .stringConf
+      .createOptional
+
+  val ENGINE_JDBC_QUERY_ROUTE: OptionalConfigEntry[String] =
+    buildConf("session.engine.jdbc.query.route")
+      .doc("The query route that jdbc engine will process query")
+      .version("1.5.0")
+      .stringConf
+      .createOptional
+
+  val ENGINE_JDBC_USER_PATTERNS: OptionalConfigEntry[String] =
+    buildConf("session.engine.jdbc.user.patterns")
+      .doc("The user pattern that jdbc engine will be accessed")
+      .version("1.5.0")
+      .stringConf
       .createOptional
 }

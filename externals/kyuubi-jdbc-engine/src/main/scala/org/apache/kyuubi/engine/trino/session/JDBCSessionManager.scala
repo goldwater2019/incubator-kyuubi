@@ -30,9 +30,10 @@ import org.apache.kyuubi.engine.trino.operation.TrinoOperationManager
 import org.apache.kyuubi.session.SessionHandle
 import org.apache.kyuubi.session.SessionManager
 
-class TrinoSessionManager
-  extends SessionManager("TrinoSessionManager") {
+class JDBCSessionManager
+  extends SessionManager("JDBCSessionManager") {
 
+  // TODO 此处的TrinoOpperationManager换成JDBCOperationManager
   val operationManager = new TrinoOperationManager()
 
   override def initialize(conf: KyuubiConf): Unit = {
@@ -49,13 +50,13 @@ class TrinoSessionManager
       conf: Map[String, String]): SessionHandle = {
     info(s"Opening session for $user@$ipAddress")
     val sessionImpl =
-      new TrinoSessionImpl(protocol, user, password, ipAddress, conf, this)
+      new JDBCSessionImpl(protocol, user, password, ipAddress, conf, this)
 
     try {
       val handle = sessionImpl.handle
       sessionImpl.open()
       setSession(handle, sessionImpl)
-      info(s"$user's trino session with $handle is opened, current opening sessions" +
+      info(s"$user's jdbc session with $handle is opened, current opening sessions" +
         s" $getOpenSessionCount")
       handle
     } catch {
@@ -74,6 +75,7 @@ class TrinoSessionManager
   }
 
   private def stopSession(): Unit = {
+    // TODO 基础的engine换成JDBCSqlEngine
     TrinoSqlEngine.currentEngine.foreach(_.stop())
   }
 

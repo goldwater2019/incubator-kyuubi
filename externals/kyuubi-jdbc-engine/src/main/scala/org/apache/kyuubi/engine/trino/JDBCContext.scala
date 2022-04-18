@@ -17,20 +17,20 @@
 
 package org.apache.kyuubi.engine.trino
 
-import org.apache.kyuubi.ha.client.EngineServiceDiscovery
-import org.apache.kyuubi.ha.client.ServiceDiscovery
-import org.apache.kyuubi.service.Serverable
-import org.apache.kyuubi.service.Service
-import org.apache.kyuubi.service.TBinaryFrontendService
+import java.util.concurrent.atomic.AtomicReference
 
-class TrinoTBinaryFrontendService(
-    override val serverable: Serverable)
-  extends TBinaryFrontendService("TrinoTBinaryFrontend") {
+import io.trino.client.ClientSession
+import okhttp3.OkHttpClient
 
-  override lazy val discoveryService: Option[Service] =
-    if (ServiceDiscovery.supportServiceDiscovery(conf)) {
-      Some(new EngineServiceDiscovery(this))
-    } else {
-      None
-    }
+case class JDBCContext(
+    httpClient: OkHttpClient,
+    clientSession: AtomicReference[ClientSession])
+
+object JDBCContext {
+  def apply(httpClient: OkHttpClient, clientSession: ClientSession): JDBCContext =
+    JDBCContext(httpClient, new AtomicReference(clientSession))
+
+  def main(args: Array[String]): Unit = {
+
+  }
 }

@@ -17,13 +17,13 @@
 
 package org.apache.kyuubi.engine.trino
 
-import org.apache.kyuubi.engine.trino.session.TrinoSessionManager
+import org.apache.kyuubi.engine.trino.session.JDBCSessionManager
 import org.apache.kyuubi.service.AbstractBackendService
 import org.apache.kyuubi.session.SessionManager
 
 class TrinoBackendService
   extends AbstractBackendService("TrinoBackendService") {
 
-  override val sessionManager: SessionManager = new TrinoSessionManager()
+  override val sessionManager: SessionManager = new JDBCSessionManager()
 
 }

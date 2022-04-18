@@ -48,10 +48,10 @@ trait WithTrinoContainerServer extends KyuubiFunSuite with TestContainerForAll {
   protected val catalog = "tpch"
   protected val schema = "tiny"
 
-  def withTrinoContainer(tc: TrinoContext => Unit): Unit = {
+  def withTrinoContainer(tc: JDBCContext => Unit): Unit = {
     withContainers { trinoContainer =>
       val connectionUrl = trinoContainer.jdbcUrl.replace("jdbc:trino", "http")
-      val trinoContext = TrinoContext(httpClient, session(connectionUrl))
+      val trinoContext = JDBCContext(httpClient, session(connectionUrl))
       tc(trinoContext)
     }
   }

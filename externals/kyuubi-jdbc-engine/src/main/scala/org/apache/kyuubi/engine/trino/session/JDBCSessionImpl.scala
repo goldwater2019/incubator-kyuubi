@@ -32,13 +32,13 @@ import org.apache.hive.service.rpc.thrift.TProtocolVersion
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.Utils.currentUser
 import org.apache.kyuubi.config.KyuubiConf
-import org.apache.kyuubi.engine.trino.TrinoConf
-import org.apache.kyuubi.engine.trino.TrinoContext
+import org.apache.kyuubi.engine.trino.JDBCConf
+import org.apache.kyuubi.engine.trino.JDBCContext
 import org.apache.kyuubi.session.AbstractSession
 import org.apache.kyuubi.session.SessionHandle
 import org.apache.kyuubi.session.SessionManager
 
-class TrinoSessionImpl(
+class JDBCSessionImpl(
     protocol: TProtocolVersion,
     user: String,
     password: String,
@@ -47,7 +47,7 @@ class TrinoSessionImpl(
     sessionManager: SessionManager)
   extends AbstractSession(protocol, user, password, ipAddress, conf, sessionManager) {
 
-  var trinoContext: TrinoContext = _
+  var jdbcContext: JDBCContext = _
   private var clientSession: ClientSession = _
 
   override val handle: SessionHandle = SessionHandle(protocol)
@@ -63,7 +63,7 @@ class TrinoSessionImpl(
     if (clientSession == null) {
       clientSession = createClientSession()
     }
-    trinoContext = TrinoContext(httpClient, clientSession)
+    trinoContext = JDBCContext(httpClient, clientSession)
 
     super.open()
   }
@@ -75,7 +75,7 @@ class TrinoSessionImpl(
     val catalog = sessionConf.get(KyuubiConf.ENGINE_TRINO_CONNECTION_CATALOG).getOrElse(
       throw KyuubiSQLException("Trino default catalog can not be null!"))
     val user = sessionConf.getOption("kyuubi.trino.user").getOrElse(currentUser)
-    val clientRequestTimeout = sessionConf.get(TrinoConf.CLIENT_REQUEST_TIMEOUT)
+    val clientRequestTimeout = sessionConf.get(JDBCConf.CLIENT_REQUEST_TIMEOUT)
 
     new ClientSession(
       URI.create(connectionUrl),

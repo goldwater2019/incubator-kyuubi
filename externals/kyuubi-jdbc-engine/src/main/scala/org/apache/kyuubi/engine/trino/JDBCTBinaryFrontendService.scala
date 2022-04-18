@@ -17,26 +17,20 @@
 
 package org.apache.kyuubi.engine.trino
 
-import java.time.Duration
+import org.apache.kyuubi.ha.client.EngineServiceDiscovery
+import org.apache.kyuubi.ha.client.ServiceDiscovery
+import org.apache.kyuubi.service.Serverable
+import org.apache.kyuubi.service.Service
+import org.apache.kyuubi.service.TBinaryFrontendService
 
-import org.apache.kyuubi.config.ConfigBuilder
-import org.apache.kyuubi.config.ConfigEntry
-import org.apache.kyuubi.config.KyuubiConf
+class JDBCTBinaryFrontendService(
+    override val serverable: Serverable)
+  extends TBinaryFrontendService("JDBCTBinaryFrontendService") {
 
-object TrinoConf {
-  private def buildConf(key: String): ConfigBuilder = KyuubiConf.buildConf(key)
-
-  val DATA_PROCESSING_POOL_SIZE: ConfigEntry[Int] =
-    buildConf("trino.client.data.processing.pool.size")
-      .doc("The size of the thread pool used by the trino client to processing data")
-      .version("1.5.0")
-      .intConf
-      .createWithDefault(3)
-
-  val CLIENT_REQUEST_TIMEOUT: ConfigEntry[Long] =
-    buildConf("trino.client.request.timeout")
-      .doc("Timeout for Trino client request to trino cluster")
-      .version("1.5.0")
-      .timeConf
-      .createWithDefault(Duration.ofMinutes(2).toMillis)
+  override lazy val discoveryService: Option[Service] =
+    if (ServiceDiscovery.supportServiceDiscovery(conf)) {
+      Some(new EngineServiceDiscovery(this))
+    } else {
+      None
+    }
 }

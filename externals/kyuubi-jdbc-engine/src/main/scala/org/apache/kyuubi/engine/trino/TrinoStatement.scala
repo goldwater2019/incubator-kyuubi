@@ -36,13 +36,13 @@ import io.trino.client.StatementClientFactory
 
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.config.KyuubiConf
-import org.apache.kyuubi.engine.trino.TrinoConf.DATA_PROCESSING_POOL_SIZE
+import org.apache.kyuubi.engine.trino.JDBCConf.DATA_PROCESSING_POOL_SIZE
 import org.apache.kyuubi.engine.trino.TrinoStatement._
 
 /**
  * Trino client communicate with trino cluster.
  */
-class TrinoStatement(trinoContext: TrinoContext, kyuubiConf: KyuubiConf, sql: String) {
+class TrinoStatement(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String) {
 
   private lazy val trino = StatementClientFactory
     .newStatementClient(trinoContext.httpClient, trinoContext.clientSession.get, sql)
@@ -192,7 +192,7 @@ object TrinoStatement {
   final private val MAX_BUFFER_TIME = Duration(3, duration.SECONDS)
   final private val END_TOKEN = List[Any]()
 
-  def apply(trinoContext: TrinoContext, kyuubiConf: KyuubiConf, sql: String): TrinoStatement = {
+  def apply(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String): TrinoStatement = {
     new TrinoStatement(trinoContext, kyuubiConf, sql)
   }
 }

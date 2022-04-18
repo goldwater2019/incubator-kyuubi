@@ -17,16 +17,26 @@
 
 package org.apache.kyuubi.engine.trino
 
-import java.util.concurrent.atomic.AtomicReference
+import java.time.Duration
 
-import io.trino.client.ClientSession
-import okhttp3.OkHttpClient
+import org.apache.kyuubi.config.ConfigBuilder
+import org.apache.kyuubi.config.ConfigEntry
+import org.apache.kyuubi.config.KyuubiConf
 
-case class TrinoContext(
-    httpClient: OkHttpClient,
-    clientSession: AtomicReference[ClientSession])
+object JDBCConf {
+  private def buildConf(key: String): ConfigBuilder = KyuubiConf.buildConf(key)
 
-object TrinoContext {
-  def apply(httpClient: OkHttpClient, clientSession: ClientSession): TrinoContext =
-    TrinoContext(httpClient, new AtomicReference(clientSession))
+  val DATA_PROCESSING_POOL_SIZE: ConfigEntry[Int] =
+    buildConf("jdbc.client.data.processing.pool.size")
+      .doc("The size of the thread pool used by the jdbc client to processing data")
+      .version("1.5.0")
+      .intConf
+      .createWithDefault(3)
+
+  val CLIENT_REQUEST_TIMEOUT: ConfigEntry[Long] =
+    buildConf("jdbc.client.request.timeout")
+      .doc("Timeout for JDBC Engine client request to jdbc engine cluster")
+      .version("1.5.0")
+      .timeConf
+      .createWithDefault(Duration.ofMinutes(2).toMillis)
 }

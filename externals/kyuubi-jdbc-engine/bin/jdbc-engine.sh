@@ -45,3 +45,5 @@ else
   (>&2 echo "[ERROR] TRINO Engine JAR file 'kyuubi-trino-engine*.jar' should be located in $TRINO_ENGINE_HOME/jars.")
   exit 1
 fi
+
+# TODO 使用脚本的方式引导启动 jdbc-engine-sql_2.12.jar

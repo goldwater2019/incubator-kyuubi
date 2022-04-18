@@ -66,7 +66,6 @@ class JDBCProcessBuilder (
         _.getAbsolutePath
       )
     }
-    jdbcHomeOpt
     jdbcHomeOpt.map {
       dir => Paths.get(dir, "bin", JDBC_ENGINE_BINARY_FILE).toAbsolutePath.toFile.getCanonicalPath
     }.getOrElse {
@@ -130,4 +129,14 @@ class JDBCProcessBuilder (
 object JDBCProcessBuilder {
   final private val USER = "kyuubi.jdbc.user"
   final private val JDBC_ENGINE_BINARY_FILE = "jdbc-engine.sh"
+
+  def main(args: Array[String]): Unit = {
+    val executable = "java -jar /path/to/target/kyuubi-jdbc-engine-gateway.jar"
+    val command = Array(executable)
+    for (elem <- command) {
+      // scalastyle:off println
+      println(elem)
+      // scalastyle:on println
+    }
+  }
 }

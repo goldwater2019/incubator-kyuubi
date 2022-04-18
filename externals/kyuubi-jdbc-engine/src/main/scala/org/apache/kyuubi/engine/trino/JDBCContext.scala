@@ -18,19 +18,16 @@
 package org.apache.kyuubi.engine.trino
 
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicReference
 
 import com.alibaba.fastjson.{JSON, TypeReference}
-import io.trino.client.ClientSession
 import okhttp3.{MediaType, OkHttpClient, Request, RequestBody}
 
 case class JDBCContext(
-    httpClient: OkHttpClient,
-    clientSession: AtomicReference[ClientSession])
+                        httpClient: OkHttpClient)
 
 object JDBCContext {
-  def apply(httpClient: OkHttpClient, clientSession: ClientSession): JDBCContext =
-    JDBCContext(httpClient, new AtomicReference(clientSession))
+  def apply(httpClient: OkHttpClient): JDBCContext =
+    JDBCContext(httpClient)
 
   val JDBCUrl: String = "http://localhost:8080/driver/query"
 
@@ -49,7 +46,7 @@ object JDBCContext {
     val jdbcResultSet = jdbcResultRef.jdbcResultSet
     val resultRowList: Array[ColumnList] = jdbcResultSet.resultRowList
     for (elem <- resultRowList) {
-      val columnList = elem.columnList  // row data
+      val columnList = elem.columnList // row data
       for (elem <- columnList) {
         println(elem)
       }

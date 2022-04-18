@@ -18,61 +18,38 @@
 package org.apache.kyuubi.engine.trino
 
 import java.util.ArrayList
-import java.util.concurrent.ArrayBlockingQueue
-import java.util.concurrent.Executors
-
+import java.util.concurrent.{ArrayBlockingQueue, Executors}
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.duration
+import scala.concurrent.{ExecutionContext, Future, duration}
 import scala.concurrent.duration.Duration
-
 import com.google.common.base.Verify
 import io.trino.client.ClientSession
-import io.trino.client.Column
-import io.trino.client.StatementClient
-import io.trino.client.StatementClientFactory
-
+import okhttp3.OkHttpClient
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.config.KyuubiConf
 import org.apache.kyuubi.engine.trino.JDBCConf.DATA_PROCESSING_POOL_SIZE
-import org.apache.kyuubi.engine.trino.TrinoStatement._
+import org.apache.kyuubi.engine.trino.JDBCStatement.MAX_QUEUED_ROWS
 
 /**
  * JDBC engine client communicate with JDBC Engine gateway.
  */
-class TrinoStatement(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String) {
+class JDBCStatement(jdncContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String) {
 
-  private lazy val trino = StatementClientFactory
-    .newStatementClient(trinoContext.httpClient, trinoContext.clientSession.get, sql)
+  private lazy val jdbcEngineHttpClient = jdncContext.httpClient;
 
   private lazy val dataProcessingPoolSize = kyuubiConf.get(DATA_PROCESSING_POOL_SIZE)
 
   implicit val ec: ExecutionContext =
     ExecutionContext.fromExecutor(Executors.newFixedThreadPool(dataProcessingPoolSize))
 
-  def getTrinoClient: StatementClient = trino
+  def getJDBCClient: OkHttpClient = jdbcEngineHttpClient
 
-  def getCurrentDatabase: String = trinoContext.clientSession.get.getSchema
+  // def getCurrentDatabase: String = trinoContext.clientSession.get.getSchema
 
   def getColumns: List[Column] = {
-    while (trino.isRunning) {
-      val results = trino.currentStatusInfo()
-      val columns = results.getColumns()
-      if (columns != null) {
-        return columns.asScala.toList
-      }
-      trino.advance()
-    }
-    Verify.verify(trino.isFinished())
-    val finalStatus = trino.finalStatusInfo()
-    if (finalStatus.getError == null) {
-      throw KyuubiSQLException(s"Query has no columns (#${finalStatus.getId})")
-    } else {
-      throw KyuubiSQLException(
-        s"Query failed (#${finalStatus.getId}): ${finalStatus.getError.getMessage}")
-    }
+    // TODO getColumns implementation
+    null
   }
 
   /**
@@ -129,37 +106,37 @@ class TrinoStatement(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: Str
       throw KyuubiSQLException(
         s"Query ${finalStatus.getId} failed: ${finalStatus.getError.getMessage}")
     }
-    updateTrinoContext()
+    // updateTrinoContext()
 
     result
   }
 
-  def updateTrinoContext(): Unit = {
-    val session = trinoContext.clientSession.get
-
-    var builder = ClientSession.builder(session)
-    // update catalog and schema
-    if (trino.getSetCatalog.isPresent || trino.getSetSchema.isPresent) {
-      builder = builder
-        .withCatalog(trino.getSetCatalog.orElse(session.getCatalog))
-        .withSchema(trino.getSetSchema.orElse(session.getSchema))
-    }
-
-    // update path if present
-    if (trino.getSetPath.isPresent) {
-      builder = builder.withPath(trino.getSetPath.get)
-    }
-
-    // update session properties if present
-    if (!trino.getSetSessionProperties.isEmpty || !trino.getResetSessionProperties.isEmpty) {
-      val properties = session.getProperties.asScala.clone()
-      properties ++= trino.getSetSessionProperties.asScala
-      properties --= trino.getResetSessionProperties.asScala
-      builder = builder.withProperties(properties.asJava)
-    }
-
-    trinoContext.clientSession.set(builder.build())
-  }
+//  def updateTrinoContext(): Unit = {
+//    val session = trinoContext.clientSession.get
+//
+//    var builder = ClientSession.builder(session)
+//    // update catalog and schema
+//    if (trino.getSetCatalog.isPresent || trino.getSetSchema.isPresent) {
+//      builder = builder
+//        .withCatalog(trino.getSetCatalog.orElse(session.getCatalog))
+//        .withSchema(trino.getSetSchema.orElse(session.getSchema))
+//    }
+//
+//    // update path if present
+//    if (trino.getSetPath.isPresent) {
+//      builder = builder.withPath(trino.getSetPath.get)
+//    }
+//
+//    // update session properties if present
+//    if (!trino.getSetSessionProperties.isEmpty || !trino.getResetSessionProperties.isEmpty) {
+//      val properties = session.getProperties.asScala.clone()
+//      properties ++= trino.getSetSessionProperties.asScala
+//      properties --= trino.getResetSessionProperties.asScala
+//      builder = builder.withProperties(properties.asJava)
+//    }
+//
+//    trinoContext.clientSession.set(builder.build())
+//  }
 
   private def drainDetectingEnd(
       rowQueue: ArrayBlockingQueue[List[Any]],
@@ -186,14 +163,14 @@ class TrinoStatement(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: Str
   }
 }
 
-object TrinoStatement {
+object JDBCStatement {
   final private val MAX_QUEUED_ROWS = 50000
   final private val MAX_BUFFERED_ROWS = 10000
   final private val MAX_BUFFER_TIME = Duration(3, duration.SECONDS)
   final private val END_TOKEN = List[Any]()
 
-  def apply(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String): TrinoStatement = {
-    new TrinoStatement(trinoContext, kyuubiConf, sql)
+  def apply(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String): JDBCStatement = {
+    new JDBCStatement(trinoContext, kyuubiConf, sql)
   }
 
   def main(args: Array[String]): Unit = {

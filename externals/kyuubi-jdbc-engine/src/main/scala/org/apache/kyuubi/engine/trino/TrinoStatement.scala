@@ -40,7 +40,7 @@ import org.apache.kyuubi.engine.trino.JDBCConf.DATA_PROCESSING_POOL_SIZE
 import org.apache.kyuubi.engine.trino.TrinoStatement._
 
 /**
- * Trino client communicate with trino cluster.
+ * JDBC engine client communicate with JDBC Engine gateway.
  */
 class TrinoStatement(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String) {
 
@@ -194,5 +194,9 @@ object TrinoStatement {
 
   def apply(trinoContext: JDBCContext, kyuubiConf: KyuubiConf, sql: String): TrinoStatement = {
     new TrinoStatement(trinoContext, kyuubiConf, sql)
+  }
+
+  def main(args: Array[String]): Unit = {
+
   }
 }

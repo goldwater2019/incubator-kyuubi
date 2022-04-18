@@ -45,7 +45,7 @@ import org.apache.kyuubi.session.Session
 abstract class TrinoOperation(opType: OperationType, session: Session)
   extends AbstractOperation(opType, session) {
 
-  protected val trinoContext: JDBCContext = session.asInstanceOf[JDBCSessionImpl].trinoContext
+  protected val trinoContext: JDBCContext = session.asInstanceOf[JDBCSessionImpl].jdbcContext
 
   protected var trino: StatementClient = _
 

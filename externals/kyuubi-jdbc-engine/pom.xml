@@ -33,6 +33,14 @@
     <url>https://kyuubi.apache.org/</url>
 
     <dependencies>
+
+        <!-- fast json dependency -->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>fastjson</artifactId>
+            <version>${fastjson.version}</version>
+        </dependency>
+
         <!-- kyuubi dependency -->
         <dependency>
             <groupId>org.apache.kyuubi</groupId>

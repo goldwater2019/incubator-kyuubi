@@ -63,7 +63,7 @@ class JDBCSessionImpl(
     if (clientSession == null) {
       clientSession = createClientSession()
     }
-    trinoContext = JDBCContext(httpClient, clientSession)
+    jdbcContext = JDBCContext(httpClient, clientSession)
 
     super.open()
   }

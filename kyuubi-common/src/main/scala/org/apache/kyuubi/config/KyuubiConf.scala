@@ -1251,4 +1251,12 @@ object KyuubiConf {
       .version("1.5.0")
       .stringConf
       .createOptional
+
+  val ENGINE_JDBC_MAIN_RESOURCE: OptionalConfigEntry[String] =
+    buildConf("session.engine.jdbc.main.resource")
+      .doc("The package used to create jdbc engine remote job. If it is undefined," +
+        " Kyuubi will use the default")
+      .version("1.5.0")
+      .stringConf
+      .createOptional
 }

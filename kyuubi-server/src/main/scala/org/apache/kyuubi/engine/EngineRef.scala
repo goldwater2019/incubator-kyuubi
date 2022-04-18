@@ -239,7 +239,7 @@ private[kyuubi] class EngineRef(
         new TrinoProcessBuilder(appUser, conf, extraEngineLog)
       case JDBC_ENGINE =>
         new TrinoProcessBuilder(appUser, conf, extraEngineLog);
-        // 此处用JDBC_ENGINE 替代 trino/presto
+        // TODO 使用JDBCProcessBuilder进行process的构建
     }
 
     MetricsSystem.tracing(_.incCount(ENGINE_TOTAL))

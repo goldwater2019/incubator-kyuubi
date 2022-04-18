@@ -173,7 +173,6 @@ private[kyuubi] class EngineRef(
 
   /**
    * 通过KyuubiServer层面appUser和配置的匹配规则进行判断, 是否需要进入到JDBC引擎中
-   * TODO 待测试, 白名单匹配规则配置是否生效
    * @param appUser
    * @param engineType
    * @param conf

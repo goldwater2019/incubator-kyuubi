@@ -29,7 +29,7 @@ import org.apache.kyuubi.operation.meta.ResultSetSchemaConstant.TABLE_SCHEM
 import org.apache.kyuubi.session.Session
 
 class GetSchemas(session: Session, catalogName: String, schemaPattern: String)
-  extends TrinoOperation(OperationType.GET_SCHEMAS, session) {
+  extends JDBCOperation(OperationType.GET_SCHEMAS, session) {
 
   private val SEARCH_STRING_ESCAPE: String = "\\"
 

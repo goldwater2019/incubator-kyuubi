@@ -23,7 +23,7 @@ import org.apache.kyuubi.operation.OperationType
 import org.apache.kyuubi.session.Session
 
 class GetCatalogs(session: Session)
-  extends TrinoOperation(OperationType.GET_CATALOGS, session) {
+  extends JDBCOperation(OperationType.GET_CATALOGS, session) {
 
   override protected def runInternal(): Unit = {
     try {

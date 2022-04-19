@@ -32,7 +32,7 @@ class GetColumns(
     schemaName: String,
     tableName: String,
     columnName: String)
-  extends TrinoOperation(OperationType.GET_COLUMNS, session) {
+  extends JDBCOperation(OperationType.GET_COLUMNS, session) {
 
   private val SEARCH_STRING_ESCAPE: String = "\\"
 

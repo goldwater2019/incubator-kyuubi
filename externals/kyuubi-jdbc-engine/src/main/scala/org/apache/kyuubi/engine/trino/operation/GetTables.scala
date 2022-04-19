@@ -32,7 +32,7 @@ class GetTables(
     schemaName: String,
     tableName: String,
     tableTypes: Set[String])
-  extends TrinoOperation(OperationType.GET_TABLES, session) {
+  extends JDBCOperation(OperationType.GET_TABLES, session) {
 
   private val SEARCH_STRING_ESCAPE: String = "\\"
 

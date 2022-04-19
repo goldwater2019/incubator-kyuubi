@@ -22,7 +22,7 @@ import org.apache.kyuubi.operation.{IterableFetchIterator, OperationType}
 import org.apache.kyuubi.session.Session
 
 class GetTypeInfo(session: Session)
-  extends TrinoOperation(OperationType.GET_TYPE_INFO, session) {
+  extends JDBCOperation(OperationType.GET_TYPE_INFO, session) {
 
   override protected def runInternal(): Unit = {
     try {

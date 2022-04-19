@@ -21,7 +21,7 @@ import java.util.concurrent.RejectedExecutionException
 
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.Logging
-import org.apache.kyuubi.engine.trino.TrinoStatement
+import org.apache.kyuubi.engine.trino.JDBCStatement
 import org.apache.kyuubi.operation.ArrayFetchIterator
 import org.apache.kyuubi.operation.IterableFetchIterator
 import org.apache.kyuubi.operation.OperationState
@@ -34,7 +34,7 @@ class ExecuteStatement(
     override val statement: String,
     override val shouldRunAsync: Boolean,
     incrementalCollect: Boolean)
-  extends TrinoOperation(OperationType.EXECUTE_STATEMENT, session) with Logging {
+  extends JDBCOperation(OperationType.EXECUTE_STATEMENT, session) with Logging {
 
   private val operationLog: OperationLog = OperationLog.createOperationLog(session, getHandle)
   override def getOperationLog: Option[OperationLog] = Option(operationLog)

@@ -93,6 +93,7 @@
         <scala.version>2.12.15</scala.version>
         <scala.binary.version>2.12</scala.binary.version>
 
+        <lombok.version>1.18.20</lombok.version>
         <fastjson.version>1.2.71</fastjson.version>
         <antlr4.version>4.8</antlr4.version>
         <apache.archive.dist>https://archive.apache.org/dist</apache.archive.dist>

@@ -42,7 +42,7 @@ import org.apache.kyuubi.operation.OperationType.OperationType
 import org.apache.kyuubi.operation.log.OperationLog
 import org.apache.kyuubi.session.Session
 
-abstract class TrinoOperation(opType: OperationType, session: Session)
+abstract class JDBCOperation(opType: OperationType, session: Session)
   extends AbstractOperation(opType, session) {
 
   protected val trinoContext: JDBCContext = session.asInstanceOf[JDBCSessionImpl].jdbcContext

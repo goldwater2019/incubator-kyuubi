@@ -24,6 +24,16 @@ import org.apache.kyuubi.session.SessionManager
 class JDBCBackendService
   extends AbstractBackendService("JDBCBackendService") {
 
+  // TODO 修改sessionManager
   override val sessionManager: SessionManager = new TrinoSessionManager()
 
 }
+
+object JDBCBackendService {
+  def main(args: Array[String]): Unit = {
+    // scalastyle:off println
+    println("hello world")
+    // scalastyle:on println
+  }
+}
+

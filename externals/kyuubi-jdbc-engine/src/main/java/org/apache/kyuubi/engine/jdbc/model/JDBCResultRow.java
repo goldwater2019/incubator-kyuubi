@@ -1,7 +1,5 @@
 package org.apache.kyuubi.engine.jdbc.model;
 
-import com.ane56.engine.jdbc.thrit.struct.TJDBCResultColumn;
-import com.ane56.engine.jdbc.thrit.struct.TJDBCRsultRow;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,25 +14,4 @@ import java.util.List;
 @Builder
 public class JDBCResultRow {
     private List<JDBCResultColumn> columnList;
-
-    public static JDBCResultRow parseFromTJDBCRsultRow(TJDBCRsultRow tjdbcRsultRow) {
-        List<TJDBCResultColumn> columnList = tjdbcRsultRow.getColumnList();
-        List<JDBCResultColumn> jdbcResultColumns = new LinkedList<>();
-        for (TJDBCResultColumn tjdbcResultColumn : columnList) {
-            jdbcResultColumns.add(JDBCResultColumn.parseFromTJDBCResultColumn(tjdbcResultColumn));
-        }
-        return JDBCResultRow.builder()
-                .columnList(jdbcResultColumns)
-                .build();
-    }
-
-    public TJDBCRsultRow asTJDBCRsultRow() {
-        TJDBCRsultRow tjdbcRsultRow = new TJDBCRsultRow();
-        List<TJDBCResultColumn> columnList = new LinkedList<>();
-        for (JDBCResultColumn jdbcResultColumn : getColumnList()) {
-            columnList.add(jdbcResultColumn.asTJDBCResultColumn());
-        }
-        tjdbcRsultRow.setColumnList(columnList);
-        return tjdbcRsultRow;
-    }
 }

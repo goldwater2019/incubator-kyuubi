@@ -23,7 +23,7 @@ import org.apache.kyuubi.{KyuubiSQLException, Utils}
 import org.apache.kyuubi.config.KyuubiConf
 import org.apache.kyuubi.config.KyuubiConf.{ENGINE_OPERATION_LOG_DIR_ROOT, ENGINE_SHARE_LEVEL}
 import org.apache.kyuubi.engine.ShareLevel
-import org.apache.kyuubi.engine.jdbc.TrinoSqlEngine
+import org.apache.kyuubi.engine.jdbc.JDBCSqlEngine
 import org.apache.kyuubi.engine.jdbc.operation.JDBCOperationManager
 import org.apache.kyuubi.session.{SessionHandle, SessionManager}
 
@@ -71,8 +71,7 @@ class JDBCSessionManager
   }
 
   private def stopSession(): Unit = {
-    // TODO 引擎侧关闭内容
-    TrinoSqlEngine.currentEngine.foreach(_.stop())
+    JDBCSqlEngine.currentEngine.foreach(_.stop())
   }
 
   override protected def isServer: Boolean = false

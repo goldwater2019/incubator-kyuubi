@@ -17,7 +17,7 @@
 
 package org.apache.kyuubi.engine.jdbc
 
-import org.apache.kyuubi.engine.jdbc.session.TrinoSessionManager
+import org.apache.kyuubi.engine.jdbc.session.JDBCSessionManager
 import org.apache.kyuubi.service.AbstractBackendService
 import org.apache.kyuubi.session.SessionManager
 
@@ -25,7 +25,7 @@ class JDBCBackendService
   extends AbstractBackendService("JDBCBackendService") {
 
   // TODO 修改sessionManager
-  override val sessionManager: SessionManager = new TrinoSessionManager()
+  override val sessionManager: SessionManager = new JDBCSessionManager()
 
 }
 

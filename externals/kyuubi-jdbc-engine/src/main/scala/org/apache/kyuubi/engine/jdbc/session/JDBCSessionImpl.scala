@@ -32,7 +32,6 @@ class JDBCSessionImpl(
     sessionManager: SessionManager)
   extends AbstractSession(protocol, user, password, ipAddress, conf, sessionManager) {
 
-  var trinoContext: TrinoContext = _
   var jdbcContext: JDBCContext = _
   private var jdbcEngineGatewayClientManager: JDBCEngineGatewayClientManager = _
 

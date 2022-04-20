@@ -18,7 +18,9 @@
 package org.apache.kyuubi.engine.jdbc.operation
 
 import java.io.IOException
+
 import org.apache.hive.service.rpc.thrift.{TRowSet, TTableSchema}
+
 import org.apache.kyuubi.{KyuubiSQLException, Utils}
 import org.apache.kyuubi.engine.jdbc.JDBCContext
 import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
@@ -31,6 +33,7 @@ import org.apache.kyuubi.operation.OperationState.OperationState
 import org.apache.kyuubi.operation.OperationType.OperationType
 import org.apache.kyuubi.operation.log.OperationLog
 import org.apache.kyuubi.session.Session
+
 
 
 abstract class JDBCOperation(opType: OperationType, session: Session)

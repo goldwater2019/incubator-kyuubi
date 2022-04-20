@@ -19,9 +19,10 @@ package org.apache.kyuubi.engine.jdbc.operation
 
 import io.trino.client.{Column, StatementClient}
 import org.apache.hive.service.rpc.thrift.{TRowSet, TTableSchema}
+import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
 import org.apache.kyuubi.{KyuubiSQLException, Utils}
-import org.apache.kyuubi.engine.jdbc.TrinoContext
-import org.apache.kyuubi.engine.jdbc.schema.{RowSet, SchemaHelper}
+import org.apache.kyuubi.engine.jdbc.{JDBCContext, TrinoContext}
+import org.apache.kyuubi.engine.jdbc.schema.{JDBCSchemaHelper, RowSet, SchemaHelper}
 import org.apache.kyuubi.engine.jdbc.session.TrinoSessionImpl
 import org.apache.kyuubi.operation.FetchOrientation.{FETCH_FIRST, FETCH_NEXT, FETCH_PRIOR, FetchOrientation}
 import org.apache.kyuubi.operation.{AbstractOperation, FetchIterator, OperationState}
@@ -35,15 +36,21 @@ import java.io.IOException
 abstract class JDBCOperation(opType: OperationType, session: Session)
   extends AbstractOperation(opType, session) {
 
-  protected val trinoContext: TrinoContext = session.asInstanceOf[TrinoSessionImpl].trinoContext
+  // protected val trinoContext: TrinoContext = session.asInstanceOf[TrinoSessionImpl].trinoContext
 
-  protected var trino: StatementClient = _
+  protected val jdbcContext: JDBCContext = null
+  // session.asInstanceOf[JDBCSessionImpl].jdbcContext
+  // TODO implement jdbcContext of JDBCSessionImpl
 
+  // protected var trino: StatementClient = _
+  protected var jdbc: JDBCEngineGatewayClientManager = _;
+
+  // TODO schema的优化
   protected var schema: List[Column] = _
 
   protected var iter: FetchIterator[List[Any]] = _
 
-  override def getResultSetSchema: TTableSchema = SchemaHelper.toTTableSchema(schema)
+  override def getResultSetSchema: TTableSchema = JDBCSchemaHelper.toTTableSchema(schema)
 
   override def getNextRowSet(order: FetchOrientation, rowSetSize: Int): TRowSet = {
     validateDefaultFetchOrientation(order)
@@ -88,10 +95,6 @@ abstract class JDBCOperation(opType: OperationType, session: Session)
   override def close(): Unit = {
     cleanup(OperationState.CLOSED)
     try {
-      if (trino != null) {
-        trino.close()
-        trino = null
-      }
       getOperationLog.foreach(_.close())
     } catch {
       case e: IOException =>
@@ -105,7 +108,6 @@ abstract class JDBCOperation(opType: OperationType, session: Session)
     // We should use Throwable instead of Exception since `java.lang.NoClassDefFoundError`
     // could be thrown.
     case e: Throwable =>
-      if (cancel && trino.isRunning) trino.cancelLeafStage()
       state.synchronized {
         val errMsg = Utils.stringifyException(e)
         if (state == OperationState.TIMEOUT) {

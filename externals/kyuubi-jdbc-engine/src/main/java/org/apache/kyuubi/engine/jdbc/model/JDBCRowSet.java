@@ -1,21 +1,23 @@
 package org.apache.kyuubi.engine.jdbc.model;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.LinkedList;
 import java.util.List;
+
+/**
+ * @Author: zhangxinsen
+ * @Date: 2022/4/20 3:32 PM
+ * @Desc:
+ * @Version: v1.0
+ */
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class JDBCResultRef {
-    private JDBCOperationRef jdbcOperationRef;
-    private JDBCResultSet jdbcResultSet;
-    private List<JDBCColumn> jdbcColumnList;
-    private List<JDBCRowSet> jdbcRowSetList;
+public class JDBCRowSet {
+    private List<String> valueList;
 }

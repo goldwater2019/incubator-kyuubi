@@ -18,14 +18,13 @@
 package org.apache.kyuubi.engine.jdbc.operation
 
 import java.io.IOException
-
 import org.apache.hive.service.rpc.thrift.{TRowSet, TTableSchema}
-
 import org.apache.kyuubi.{KyuubiSQLException, Utils}
 import org.apache.kyuubi.engine.jdbc.JDBCContext
 import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
 import org.apache.kyuubi.engine.jdbc.model.JDBCColumn
 import org.apache.kyuubi.engine.jdbc.schema.{JDBCRowSet, JDBCSchemaHelper}
+import org.apache.kyuubi.engine.jdbc.session.JDBCSessionImpl
 import org.apache.kyuubi.operation.{AbstractOperation, FetchIterator, OperationState}
 import org.apache.kyuubi.operation.FetchOrientation.{FETCH_FIRST, FETCH_NEXT, FETCH_PRIOR, FetchOrientation}
 import org.apache.kyuubi.operation.OperationState.OperationState
@@ -37,9 +36,7 @@ import org.apache.kyuubi.session.Session
 abstract class JDBCOperation(opType: OperationType, session: Session)
   extends AbstractOperation(opType, session) {
 
-  protected val jdbcContext: JDBCContext = null
-  // session.asInstanceOf[JDBCSessionImpl].jdbcContext
-  // TODO implement jdbcContext of JDBCSessionImpl
+  protected val jdbcContext: JDBCContext = session.asInstanceOf[JDBCSessionImpl].jdbcContext
 
   // protected var trino: StatementClient = _
   protected var jdbc: JDBCEngineGatewayClientManager = _;

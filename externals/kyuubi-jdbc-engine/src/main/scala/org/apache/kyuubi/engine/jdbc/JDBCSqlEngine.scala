@@ -20,7 +20,7 @@ package org.apache.kyuubi.engine.jdbc
 import java.util.concurrent.CountDownLatch
 
 import org.apache.kyuubi.Logging
-import org.apache.kyuubi.Utils.{addShutdownHook, TRINO_ENGINE_SHUTDOWN_PRIORITY}
+import org.apache.kyuubi.Utils.{addShutdownHook, JDBC_ENGINE_SHUTDOWN_PRIORITY}
 import org.apache.kyuubi.config.KyuubiConf
 import org.apache.kyuubi.engine.jdbc.JDBCSqlEngine.{countDownLatch, currentEngine}
 import org.apache.kyuubi.ha.HighAvailabilityConf.HA_ZK_CONN_RETRY_POLICY
@@ -62,7 +62,7 @@ object JDBCSqlEngine extends Logging {
     currentEngine.foreach { engine =>
       engine.initialize(kyuubiConf)
       engine.start()
-      addShutdownHook(() => engine.stop(), TRINO_ENGINE_SHUTDOWN_PRIORITY + 1)
+      addShutdownHook(() => engine.stop(), JDBC_ENGINE_SHUTDOWN_PRIORITY + 1)
     }
   }
 
@@ -82,7 +82,7 @@ object JDBCSqlEngine extends Logging {
           error(t)
           engine.stop()
         }
-      case t: Throwable => error("Create Trino Engine Failed", t)
+      case t: Throwable => error("Create JDBC Engine Failed", t)
     }
   }
 }

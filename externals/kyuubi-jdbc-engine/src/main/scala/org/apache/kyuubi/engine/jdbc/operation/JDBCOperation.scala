@@ -17,26 +17,25 @@
 
 package org.apache.kyuubi.engine.jdbc.operation
 
-import io.trino.client.{Column, StatementClient}
+import java.io.IOException
+
 import org.apache.hive.service.rpc.thrift.{TRowSet, TTableSchema}
-import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
+
 import org.apache.kyuubi.{KyuubiSQLException, Utils}
-import org.apache.kyuubi.engine.jdbc.{JDBCContext, TrinoContext}
-import org.apache.kyuubi.engine.jdbc.schema.{JDBCSchemaHelper, RowSet, SchemaHelper}
-import org.apache.kyuubi.engine.jdbc.session.TrinoSessionImpl
-import org.apache.kyuubi.operation.FetchOrientation.{FETCH_FIRST, FETCH_NEXT, FETCH_PRIOR, FetchOrientation}
+import org.apache.kyuubi.engine.jdbc.JDBCContext
+import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
+import org.apache.kyuubi.engine.jdbc.model.JDBCColumn
+import org.apache.kyuubi.engine.jdbc.schema.{JDBCRowSet, JDBCSchemaHelper}
 import org.apache.kyuubi.operation.{AbstractOperation, FetchIterator, OperationState}
+import org.apache.kyuubi.operation.FetchOrientation.{FETCH_FIRST, FETCH_NEXT, FETCH_PRIOR, FetchOrientation}
 import org.apache.kyuubi.operation.OperationState.OperationState
 import org.apache.kyuubi.operation.OperationType.OperationType
 import org.apache.kyuubi.operation.log.OperationLog
 import org.apache.kyuubi.session.Session
 
-import java.io.IOException
 
 abstract class JDBCOperation(opType: OperationType, session: Session)
   extends AbstractOperation(opType, session) {
-
-  // protected val trinoContext: TrinoContext = session.asInstanceOf[TrinoSessionImpl].trinoContext
 
   protected val jdbcContext: JDBCContext = null
   // session.asInstanceOf[JDBCSessionImpl].jdbcContext
@@ -45,12 +44,11 @@ abstract class JDBCOperation(opType: OperationType, session: Session)
   // protected var trino: StatementClient = _
   protected var jdbc: JDBCEngineGatewayClientManager = _;
 
-  // TODO schema的优化
-  protected var schema: List[Column] = _
+  protected var schema: List[JDBCColumn] = _
 
   protected var iter: FetchIterator[List[Any]] = _
 
-  override def getResultSetSchema: TTableSchema = JDBCSchemaHelper.toTTableSchema(schema)
+  override def getResultSetSchema: TTableSchema = JDBCSchemaHelper.jdbc2TTableSchema(schema)
 
   override def getNextRowSet(order: FetchOrientation, rowSetSize: Int): TRowSet = {
     validateDefaultFetchOrientation(order)
@@ -62,7 +60,7 @@ abstract class JDBCOperation(opType: OperationType, session: Session)
       case FETCH_FIRST => iter.fetchAbsolute(0);
     }
     val taken = iter.take(rowSetSize)
-    val resultRowSet = RowSet.toTRowSet(taken.toList, schema, getProtocolVersion)
+    val resultRowSet = JDBCRowSet.jdbc2TRowSet(taken.toList, schema, getProtocolVersion)
     resultRowSet.setStartRowOffset(iter.getPosition)
     resultRowSet
   }

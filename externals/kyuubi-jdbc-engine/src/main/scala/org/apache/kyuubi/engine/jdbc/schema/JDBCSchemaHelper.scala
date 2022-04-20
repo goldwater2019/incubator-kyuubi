@@ -16,29 +16,17 @@
  */
 package org.apache.kyuubi.engine.jdbc.schema
 
-import io.trino.client.ClientStandardTypes._
-import io.trino.client.{ClientTypeSignature, Column}
-import org.apache.hive.service.rpc.thrift._
-import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType
+import java.util.Collections
 
-import java.util.{Collections, Locale}
 import scala.collection.JavaConverters._
 
-object JDBCSchemaHelper {
+import org.apache.hive.service.rpc.thrift._
 
-  private lazy val STRING_TYPES = Set(
-    HYPER_LOG_LOG,
-    QDIGEST,
-    P4_HYPER_LOG_LOG,
-    TIMESTAMP_WITH_TIME_ZONE,
-    TIME,
-    TIME_WITH_TIME_ZONE,
-    JSON,
-    IPADDRESS,
-    UUID,
-    GEOMETRY,
-    SPHERICAL_GEOGRAPHY,
-    BING_TILE)
+import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType
+import org.apache.kyuubi.engine.jdbc.model.JDBCColumn
+
+
+object JDBCSchemaHelper {
 
   /**
    * BIT => TINYINT
@@ -48,18 +36,19 @@ object JDBCSchemaHelper {
    * TIME => STRING
    * VARBINARY => BINARY
    * LONGVARBINARY => BINARY
-   * REAL => STRING
-   * @param jdbcColumnType
+   * REAL => FLOAT_TYPE
+   *
+   * @param jdbcColumn `
    * @return
    */
-  def jdbc2TTypeId(jdbcColumnType: JDBCColumnType) : TTypeId = jdbcColumnType match {
+  def jdbc2TTypeId(jdbcColumn: JDBCColumn): TTypeId = jdbcColumn.getJdbcColumnType match {
     case JDBCColumnType.BIT => TTypeId.TINYINT_TYPE
     case JDBCColumnType.TINYINT => TTypeId.TINYINT_TYPE
     case JDBCColumnType.SMALLINT => TTypeId.SMALLINT_TYPE
     case JDBCColumnType.INTEGER => TTypeId.INT_TYPE
     case JDBCColumnType.BIGINT => TTypeId.BIGINT_TYPE
     case JDBCColumnType.FLOAT => TTypeId.FLOAT_TYPE
-    case JDBCColumnType.REAL => TTypeId.STRING_TYPE
+    case JDBCColumnType.REAL => TTypeId.FLOAT_TYPE
     case JDBCColumnType.DOUBLE => TTypeId.DOUBLE_TYPE
     case JDBCColumnType.NUMERIC => TTypeId.DECIMAL_TYPE
     case JDBCColumnType.DECIMAL => TTypeId.DECIMAL_TYPE
@@ -81,14 +70,9 @@ object JDBCSchemaHelper {
       throw new IllegalArgumentException("Unrecognized jdbc type, other type")
   }
 
-  /**
-   *  DECIMAL, NUMERICAL, 默认精度decimal(32,3)
-   * @param jdbcColumnType
-   * @return
-   */
-  def jdbcToTTypeQualifiers(jdbcColumnType: JDBCColumnType): TTypeQualifiers = {
+  def jdbc2TTypeQualifiers(jdbcColumn: JDBCColumn): TTypeQualifiers = {
     val ret = new TTypeQualifiers()
-    val qualifiers = jdbcColumnType match {
+    val qualifiers = jdbcColumn.getJdbcColumnType match {
       case JDBCColumnType.DECIMAL =>
         Map(
           TCLIServiceConstants.PRECISION ->
@@ -111,43 +95,26 @@ object JDBCSchemaHelper {
     ret
   }
 
-  def toTTypeQualifiers(typ: ClientTypeSignature): TTypeQualifiers = {
-    val ret = new TTypeQualifiers()
-    val qualifiers = typ.getRawType match {
-      case DECIMAL =>
-        Map(
-          TCLIServiceConstants.PRECISION ->
-            TTypeQualifierValue.i32Value(typ.getArguments.get(0).getValue.asInstanceOf[Long].toInt),
-          TCLIServiceConstants.SCALE ->
-            TTypeQualifierValue.i32Value(typ.getArguments.get(1).getValue.asInstanceOf[Long].toInt))
-          .asJava
-      case _ => Collections.emptyMap[String, TTypeQualifierValue]()
-    }
-    ret.setQualifiers(qualifiers)
-    ret
-  }
-
-  def toTTypeDesc(typ: ClientTypeSignature): TTypeDesc = {
-    val typeEntry = new TPrimitiveTypeEntry(toTTypeId(typ))
-    typeEntry.setTypeQualifiers(toTTypeQualifiers(typ))
+  def jdbc2TTypeDesc(jdbcColumn: JDBCColumn): TTypeDesc = {
+    val typeEntry = new TPrimitiveTypeEntry(jdbc2TTypeId(jdbcColumn))
+    typeEntry.setTypeQualifiers(jdbc2TTypeQualifiers(jdbcColumn))
     val tTypeDesc = new TTypeDesc()
     tTypeDesc.addToTypes(TTypeEntry.primitiveEntry(typeEntry))
     tTypeDesc
   }
 
-  // TODO jdbcEngine侧, column信息
-  def toTColumnDesc(column: Column, pos: Int): TColumnDesc = {
+  def jdbc2TColumnDesc(jdbcColumn: JDBCColumn, pos: Int): TColumnDesc = {
     val tColumnDesc = new TColumnDesc()
-    tColumnDesc.setColumnName(column.getName)
-    tColumnDesc.setTypeDesc(toTTypeDesc(column.getTypeSignature))
+    tColumnDesc.setColumnName(jdbcColumn.getJdbcColumnName)
+    tColumnDesc.setTypeDesc(jdbc2TTypeDesc(jdbcColumn))
     tColumnDesc.setPosition(pos)
     tColumnDesc
   }
 
-  def toTTableSchema(schema: Seq[Column]): TTableSchema = {
+  def jdbc2TTableSchema(schema: Seq[JDBCColumn]): TTableSchema = {
     val tTableSchema = new TTableSchema()
     schema.zipWithIndex.foreach { case (f, i) =>
-      tTableSchema.addToColumns(toTColumnDesc(f, i))
+      tTableSchema.addToColumns(jdbc2TColumnDesc(f, i))
     }
     tTableSchema
   }

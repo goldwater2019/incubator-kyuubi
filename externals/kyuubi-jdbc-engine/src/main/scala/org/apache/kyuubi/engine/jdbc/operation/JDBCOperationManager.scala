@@ -94,7 +94,7 @@ class JDBCOperationManager extends OperationManager("JDBCOperationManager") {
                                          catalogName: String,
                                          schemaName: String,
                                          functionName: String): Operation = {
-    // TODO: Supports the GetFunctions operation when Trino supports the query of the functions.
+    // TODO: Supports the GetFunctions operation when JDBC supports the query of the functions.
     throw KyuubiSQLException.featureNotSupported()
   }
 }

@@ -17,11 +17,8 @@
 
 package org.apache.kyuubi.engine.jdbc
 
-import java.util.concurrent.Executors
-
 import scala.collection.JavaConverters._
 import scala.collection.mutable.ArrayBuffer
-import scala.concurrent.ExecutionContext
 
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.config.KyuubiConf
@@ -29,6 +26,7 @@ import org.apache.kyuubi.config.KyuubiConf.ENGINE_JDBC_CONNECTION_URL
 import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
 import org.apache.kyuubi.engine.jdbc.enumeration.JDBCQueryStatus
 import org.apache.kyuubi.engine.jdbc.model.{JDBCColumn, JDBCResultRef}
+
 
 /**
  * jdbc client communicate with jdbc cluster.

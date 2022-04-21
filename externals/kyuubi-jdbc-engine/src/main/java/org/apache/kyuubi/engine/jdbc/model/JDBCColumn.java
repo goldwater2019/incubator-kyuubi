@@ -14,11 +14,26 @@ import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType;
  */
 
 
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
 public class JDBCColumn {
+    public JDBCColumnType getJdbcColumnType() {
+        return jdbcColumnType;
+    }
+
+    public void setJdbcColumnType(JDBCColumnType jdbcColumnType) {
+        this.jdbcColumnType = jdbcColumnType;
+    }
+
+    public String getJdbcColumnName() {
+        return jdbcColumnName;
+    }
+
+    public void setJdbcColumnName(String jdbcColumnName) {
+        this.jdbcColumnName = jdbcColumnName;
+    }
+
     private JDBCColumnType jdbcColumnType;
     private String jdbcColumnName;
 }

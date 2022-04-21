@@ -260,7 +260,9 @@ object JDBCRowSet {
           true,
           "Missing ARRAY argument type")
         // val listType = typ.getArgumentsAsTypeSignatures.get(0)
-        val listType = JDBCColumn.builder().jdbcColumnType(JDBCColumnType.VARCHAR).build()
+        // val listType = JDBCColumn.builder().jdbcColumnType(JDBCColumnType.VARCHAR).build()
+        val listType = new JDBCColumn()
+        listType.setJdbcColumnType(JDBCColumnType.VARCHAR)
         list.asScala
           .map(jdbc2HiveString(_, listType))
           .mkString("[", ",", "]")

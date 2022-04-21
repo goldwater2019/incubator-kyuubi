@@ -19,7 +19,7 @@ package org.apache.kyuubi.engine.jdbc.session
 
 import org.apache.hive.service.rpc.thrift.TProtocolVersion
 
-import org.apache.kyuubi.engine.jdbc.{JDBCContext, TrinoContext}
+import org.apache.kyuubi.engine.jdbc.JDBCContext
 import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
 import org.apache.kyuubi.session.{AbstractSession, SessionHandle, SessionManager}
 

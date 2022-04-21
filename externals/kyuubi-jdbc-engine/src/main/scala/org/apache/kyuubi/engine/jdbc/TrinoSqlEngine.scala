@@ -20,15 +20,10 @@ package org.apache.kyuubi.engine.jdbc
 import java.util.concurrent.CountDownLatch
 
 import org.apache.kyuubi.Logging
-import org.apache.kyuubi.Utils.TRINO_ENGINE_SHUTDOWN_PRIORITY
-import org.apache.kyuubi.Utils.addShutdownHook
+import org.apache.kyuubi.Utils.{addShutdownHook, TRINO_ENGINE_SHUTDOWN_PRIORITY}
 import org.apache.kyuubi.config.KyuubiConf
-import TrinoSqlEngine.countDownLatch
-import TrinoSqlEngine.currentEngine
-import org.apache.kyuubi.ha.HighAvailabilityConf.HA_ZK_CONN_RETRY_POLICY
-import org.apache.kyuubi.ha.client.RetryPolicies
+import org.apache.kyuubi.engine.jdbc.TrinoSqlEngine.{countDownLatch, currentEngine}
 import org.apache.kyuubi.service.Serverable
-import org.apache.kyuubi.util.SignalRegister
 
 case class TrinoSqlEngine()
   extends Serverable("TrinoSQLEngine") {
@@ -68,23 +63,23 @@ object TrinoSqlEngine extends Logging {
     }
   }
 
-  def main(args: Array[String]): Unit = {
-    SignalRegister.registerLogger(logger)
-
-    try {
-      kyuubiConf.setIfMissing(KyuubiConf.FRONTEND_THRIFT_BINARY_BIND_PORT, 0)
-      kyuubiConf.setIfMissing(HA_ZK_CONN_RETRY_POLICY, RetryPolicies.N_TIME.toString)
-
-      startEngine()
-      // blocking main thread
-      countDownLatch.await()
-    } catch {
-      case t: Throwable if currentEngine.isDefined =>
-        currentEngine.foreach { engine =>
-          error(t)
-          engine.stop()
-        }
-      case t: Throwable => error("Create Trino Engine Failed", t)
-    }
-  }
+  //  def main(args: Array[String]): Unit = {
+  //    SignalRegister.registerLogger(logger)
+  //
+  //    try {
+  //      kyuubiConf.setIfMissing(KyuubiConf.FRONTEND_THRIFT_BINARY_BIND_PORT, 0)
+  //      kyuubiConf.setIfMissing(HA_ZK_CONN_RETRY_POLICY, RetryPolicies.N_TIME.toString)
+  //
+  //      startEngine()
+  //      // blocking main thread
+  //      countDownLatch.await()
+  //    } catch {
+  //      case t: Throwable if currentEngine.isDefined =>
+  //        currentEngine.foreach { engine =>
+  //          error(t)
+  //          engine.stop()
+  //        }
+  //      case t: Throwable => error("Create Trino Engine Failed", t)
+  //    }
+  //  }
 }

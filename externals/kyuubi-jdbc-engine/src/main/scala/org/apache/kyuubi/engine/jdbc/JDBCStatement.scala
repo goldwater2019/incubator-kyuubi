@@ -68,7 +68,7 @@ class JDBCStatement(jdncContext: JDBCContext, kyuubiConf: KyuubiConf, sql: Strin
     jdbcResultRef = client.querySql(sql, baseUrl).getData
     val rowSetList = jdbcResultRef.getJdbcRowSetList
     for (elem <- rowSetList.asScala) {
-      result += elem
+      result += elem.getValueList.asScala.toList
     }
     result
   }

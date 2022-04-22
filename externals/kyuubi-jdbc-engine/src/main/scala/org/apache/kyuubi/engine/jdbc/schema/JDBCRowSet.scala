@@ -124,6 +124,20 @@ object JDBCRowSet {
           .asJava
         TColumn.binaryVal(new TBinaryColumn(values, nulls))
 
+      case JDBCColumnType.VARBINARY =>
+        val values = getOrSetAsNull[Array[Byte]](rows, ordinal, nulls, Array())
+          .asScala
+          .map(ByteBuffer.wrap)
+          .asJava
+        TColumn.binaryVal(new TBinaryColumn(values, nulls))
+
+      case JDBCColumnType.LONGVARBINARY =>
+        val values = getOrSetAsNull[Array[Byte]](rows, ordinal, nulls, Array())
+          .asScala
+          .map(ByteBuffer.wrap)
+          .asJava
+        TColumn.binaryVal(new TBinaryColumn(values, nulls))
+
       case _ =>
         val values = rows.zipWithIndex.map { case (row, i) =>
           nulls.set(i, row(ordinal) == null)

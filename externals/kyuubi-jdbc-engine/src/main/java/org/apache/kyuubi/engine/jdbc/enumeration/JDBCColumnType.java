@@ -29,7 +29,11 @@ public enum JDBCColumnType {
   ARRAY(2003),
   BOOLEAN(16),
   LONGNVARCHAR(-16),
-  OTHER(1111);
+  OTHER(1111),
+  MAP(666),
+  JSON(777),
+  IPADDRESS(888),
+  UUID(9999);
 
   private static final Map<Integer, JDBCColumnType> value2jdbcColumnType = new HashMap<>();
 

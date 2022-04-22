@@ -17,24 +17,22 @@
 
 package org.apache.kyuubi.engine.jdbc.schema
 
-import java.nio.ByteBuffer
-import java.nio.charset.StandardCharsets
-
-import scala.collection.JavaConverters._
-
 import org.apache.hive.service.rpc.thrift._
-
 import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType
 import org.apache.kyuubi.engine.jdbc.model.JDBCColumn
 import org.apache.kyuubi.engine.trino.util.PreconditionsWrapper._
 import org.apache.kyuubi.util.RowSetUtils.bitSetToBuffer
 
+import java.nio.ByteBuffer
+import java.nio.charset.StandardCharsets
+import scala.collection.JavaConverters._
+
 object JDBCRowSet {
 
   def jdbc2TRowSet(
-      rows: Seq[List[_]],
-      schema: List[JDBCColumn],
-      protocolVersion: TProtocolVersion): TRowSet = {
+                    rows: Seq[List[_]],
+                    schema: List[JDBCColumn],
+                    protocolVersion: TProtocolVersion): TRowSet = {
     if (protocolVersion.getValue < TProtocolVersion.HIVE_CLI_SERVICE_PROTOCOL_V6.getValue) {
       jdbc2RowBasedSet(rows, schema)
     } else {
@@ -280,7 +278,16 @@ object JDBCRowSet {
         list.asScala
           .map(jdbc2HiveString(_, listType))
           .mkString("[", ",", "]")
-
+      case (mapData: java.util.Map[_, _], JDBCColumnType.MAP) =>
+        mapData.asScala.map {
+          case (k, v) =>
+            jdbc2HiveString(k,
+              JDBCColumn.builder().jdbcColumnType(JDBCColumnType.VARCHAR).build()) +":" +
+              jdbc2HiveString(v,
+                JDBCColumn.builder().jdbcColumnType(JDBCColumnType.VARCHAR).build())
+        }.toSeq.sorted.mkString("{", ",", "}");
+      // TODO MAP和JSON类型的支持
+      //
       //      case (m: java.util.Map[_, _], JDBCColumnType.MAP) =>
       //        checkArgument(
       //          typ.getArgumentsAsTypeSignatures.size() == 2,

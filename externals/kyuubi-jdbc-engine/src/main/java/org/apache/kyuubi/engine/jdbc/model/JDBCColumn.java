@@ -1,14 +1,9 @@
 package org.apache.kyuubi.engine.jdbc.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.NoArgsConstructor;
 import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType;
 
 /** @Author: zhangxinsen @Date: 2022/4/20 3:31 PM @Desc: @Version: v1.0 */
-@AllArgsConstructor
-@NoArgsConstructor
-@Builder
 public class JDBCColumn {
   public JDBCColumnType getJdbcColumnType() {
     return jdbcColumnType;
@@ -28,4 +23,36 @@ public class JDBCColumn {
 
   private JDBCColumnType jdbcColumnType;
   private String jdbcColumnName;
+
+  public JDBCColumn(String columnName, JDBCColumnType columnType) {
+    setJdbcColumnName(columnName);
+    setJdbcColumnType(columnType);
+  }
+
+  public JDBCColumn() {}
+
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+    private String jdbcColumnName;
+    private JDBCColumnType jdbcColumnType;
+
+    public Builder jdbcColumnName(String jdbcColumnName) {
+      this.jdbcColumnName = jdbcColumnName;
+      return this;
+    }
+
+    public Builder jdbcColumnType(JDBCColumnType jdbcColumnType) {
+      this.jdbcColumnType = jdbcColumnType;
+      return this;
+    }
+
+    public JDBCColumn build() {
+      return new JDBCColumn(jdbcColumnName, jdbcColumnType);
+    }
+
+  }
+
 }

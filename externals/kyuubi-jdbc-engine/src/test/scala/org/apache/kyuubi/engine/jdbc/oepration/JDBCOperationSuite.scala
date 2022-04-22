@@ -14,20 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.kyuubi.engine.jdbc
 
-import org.apache.kyuubi.KyuubiFunSuite
-import org.apache.kyuubi.config.KyuubiConf
-import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
+package org.apache.kyuubi.engine.jdbc.oepration
 
-trait WithJDBCContainerServer extends KyuubiFunSuite{
-  val kyuubiConf: KyuubiConf = KyuubiConf()
+import org.apache.kyuubi.engine.jdbc.WithJDBCEngine
+import org.apache.kyuubi.operation.HiveJDBCTestHelper
 
-  def withKyuubiConf: Map[String, String]
+class JDBCOperationSuite extends WithJDBCEngine with HiveJDBCTestHelper {
+  override protected def jdbcUrl: String = getJdbcUrl
 
-  private val manager: JDBCEngineGatewayClientManager = JDBCEngineGatewayClientManager.getInstance()
+  override def withKyuubiConf: Map[String, String] =
+    Map()
 
-  def getJDBCContext(): JDBCContext = {
-    new JDBCContext(manager)
+  test("execute statement") {
+    withJdbcStatement() {
+      statement =>
+//        statement.execute("select 1 from aliyun")
+        val resultSet = statement.executeQuery("select 1 from aliyun")
+        assert(resultSet.next())
+    }
   }
 }

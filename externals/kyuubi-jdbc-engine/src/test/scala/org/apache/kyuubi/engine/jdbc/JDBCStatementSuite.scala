@@ -17,6 +17,8 @@
 
 package org.apache.kyuubi.engine.jdbc
 
+import org.apache.kyuubi.config.KyuubiConf.ENGINE_JDBC_CONNECTION_URL
+
 class JDBCStatementSuite extends WithJDBCEngine {
   test("test simple query") {
     val jdbcContext = getJDBCContext
@@ -65,4 +67,8 @@ class JDBCStatementSuite extends WithJDBCEngine {
     val columns = jdbcStatement.getJDBCColumns
     assert(columns.nonEmpty)
   }
+
+  override def withKyuubiConf: Map[String, String] = Map(
+    ENGINE_JDBC_CONNECTION_URL.key -> gatewayUrl
+  )
 }

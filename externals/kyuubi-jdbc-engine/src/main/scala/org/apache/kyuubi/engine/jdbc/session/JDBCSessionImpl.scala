@@ -44,7 +44,7 @@ class JDBCSessionImpl(
     if (jdbcEngineGatewayClientManager == null) {
       jdbcEngineGatewayClientManager = JDBCEngineGatewayClientManager.getInstance()
     }
-    jdbcContext = JDBCContext(jdbcEngineGatewayClientManager)
+    jdbcContext = new JDBCContext(jdbcEngineGatewayClientManager)
 
     super.open()
   }

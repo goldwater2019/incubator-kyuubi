@@ -65,6 +65,10 @@ object JDBCSchemaHelper {
     case JDBCColumnType.ARRAY => TTypeId.ARRAY_TYPE
     case JDBCColumnType.BOOLEAN => TTypeId.BOOLEAN_TYPE
     case JDBCColumnType.LONGNVARCHAR => TTypeId.STRING_TYPE
+    case JDBCColumnType.JSON => TTypeId.VARCHAR_TYPE
+    case JDBCColumnType.MAP => TTypeId.VARCHAR_TYPE
+    case JDBCColumnType.IPADDRESS => TTypeId.VARCHAR_TYPE
+    case JDBCColumnType.UUID => TTypeId.VARCHAR_TYPE
     case JDBCColumnType.OTHER =>
       throw new IllegalArgumentException("Unrecognized jdbc type, other type")
   }

@@ -11,21 +11,13 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 public class JDBCRowSet {
-  private List<String> valueList;
+  private List<Object> valueList;
 
-  public List<String> getValueList() {
+  public List<Object> getValueList() {
     return valueList;
   }
 
-  public List<Object> getValueListAsObject() {
-    List<Object> result = new ArrayList<Object>();
-    for (String s : getValueList()) {
-      result.add((Object) s);
-    }
-    return result;
-  }
-
-  public void setValueList(List<String> valueList) {
+  public void setValueList(List<Object> valueList) {
     this.valueList = valueList;
   }
 }

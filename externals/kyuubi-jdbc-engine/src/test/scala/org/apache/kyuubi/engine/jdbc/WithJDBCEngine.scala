@@ -18,15 +18,16 @@ package org.apache.kyuubi.engine.jdbc
 
 import org.apache.kyuubi.KyuubiFunSuite
 import org.apache.kyuubi.config.KyuubiConf
-import org.apache.kyuubi.config.KyuubiConf.ENGINE_JDBC_CONNECTION_URL
+import org.apache.kyuubi.config.KyuubiConf.{ENGINE_JDBC_CONNECTION_URL, FRONTEND_THRIFT_BINARY_BIND_PORT}
 
 trait WithJDBCEngine extends KyuubiFunSuite with WithJDBCContainerServer {
   protected var engine: JDBCSqlEngine = _
-  protected var connectionUrl: String = "http://127.0.0.1:8080/"
+  protected var connectionUrl: String = "172.20.10.10:10009"
+  protected val gatewayUrl: String = "http://127.0.0.1:8081"
 
   override val kyuubiConf: KyuubiConf = JDBCSqlEngine.kyuubiConf
 
-  protected var withKyuubiConf: Map[String, String] = _
+  def withKyuubiConf: Map[String, String]
 
   override def beforeAll(): Unit = {
     startJDBCEngine()
@@ -34,7 +35,8 @@ trait WithJDBCEngine extends KyuubiFunSuite with WithJDBCContainerServer {
   }
 
   def startJDBCEngine(): Unit = {
-    kyuubiConf.set(ENGINE_JDBC_CONNECTION_URL, connectionUrl)
+    kyuubiConf.set(ENGINE_JDBC_CONNECTION_URL, gatewayUrl)
+    kyuubiConf.set(FRONTEND_THRIFT_BINARY_BIND_PORT, 10010)
     if (withKyuubiConf != null && withKyuubiConf.size > 0) {
       withKyuubiConf.foreach {
         case (k, v) =>
@@ -45,6 +47,7 @@ trait WithJDBCEngine extends KyuubiFunSuite with WithJDBCContainerServer {
 
     JDBCSqlEngine.startEngine()
     engine = JDBCSqlEngine.currentEngine.get
+    assert(engine != null)
   }
 
   override def afterAll(): Unit = {
@@ -58,4 +61,6 @@ trait WithJDBCEngine extends KyuubiFunSuite with WithJDBCContainerServer {
     }
     engine = null
   }
+
+  protected def getJdbcUrl: String = s"jdbc:hive2://$connectionUrl/"
 }

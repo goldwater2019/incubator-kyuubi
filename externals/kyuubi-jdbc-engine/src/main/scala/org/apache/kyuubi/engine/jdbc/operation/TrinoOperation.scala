@@ -18,10 +18,12 @@
 package org.apache.kyuubi.engine.jdbc.operation
 
 import java.io.IOException
+
 import io.trino.client.Column
 import io.trino.client.StatementClient
 import org.apache.hive.service.rpc.thrift.TRowSet
 import org.apache.hive.service.rpc.thrift.TTableSchema
+
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.Utils
 import org.apache.kyuubi.engine.jdbc.TrinoContext

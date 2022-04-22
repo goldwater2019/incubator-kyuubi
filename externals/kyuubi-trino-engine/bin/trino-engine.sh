@@ -31,12 +31,14 @@ else
   TRINO_CLIENT_JARS_DIR=$(find $TRINO_ENGINE_HOME/target -regex '.*/jars')
 fi
 
-TRINO_CLIENT_CLASSPATH="$TRINO_CLIENT_JARS_DIR/*"
-FULL_CLASSPATH="$TRINO_CLIENT_CLASSPATH:$TRINO_CLIENT_JAR"
+TRINO_CLIENT_CLASSPATH=$(find $TRINO_CLIENT_JARS_DIR -regex ".*jar" | tr '\n' ':')
+FULL_CLASSPATH="$TRINO_CLIENT_CLASSPATH$TRINO_CLIENT_JAR"
 
 if [ -n "$TRINO_CLIENT_JAR" ]; then
   exec $RUNNER ${TRINO_ENGINE_DYNAMIC_ARGS} -cp ${FULL_CLASSPATH} org.apache.kyuubi.engine.trino.TrinoSqlEngine "$@"
+  echo $RUNNER ${TRINO_ENGINE_DYNAMIC_ARGS} -cp ${FULL_CLASSPATH} org.apache.kyuubi.engine.trino.TrinoSqlEngine "$@" > /Users/zhangxinsen/workspace/incubator-kyuubi/conf/scripts.log
 else
+  (>&2 echo $RUNNER ${TRINO_ENGINE_DYNAMIC_ARGS} -cp ${FULL_CLASSPATH} org.apache.kyuubi.engine.trino.TrinoSqlEngine "$@")
   (>&2 echo "[ERROR] TRINO Engine JAR file 'kyuubi-trino-engine*.jar' should be located in $TRINO_ENGINE_HOME/jars.")
   exit 1
 fi

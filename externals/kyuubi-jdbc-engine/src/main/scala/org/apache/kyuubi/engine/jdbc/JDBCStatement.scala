@@ -27,7 +27,6 @@ import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
 import org.apache.kyuubi.engine.jdbc.enumeration.JDBCQueryStatus
 import org.apache.kyuubi.engine.jdbc.model.{JDBCColumn, JDBCResultRef}
 
-
 /**
  * jdbc client communicate with jdbc cluster.
  */
@@ -68,7 +67,7 @@ class JDBCStatement(jdncContext: JDBCContext, kyuubiConf: KyuubiConf, sql: Strin
     jdbcResultRef = client.querySql(sql, baseUrl).getData
     val rowSetList = jdbcResultRef.getJdbcRowSetList
     for (elem <- rowSetList.asScala) {
-      result += elem.getValueList.asScala.toList
+      result += elem.getValueListAsObject.asScala.toList
     }
     result
   }

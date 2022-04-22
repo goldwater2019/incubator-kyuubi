@@ -11,8 +11,8 @@ import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType;
 @NoArgsConstructor
 @Builder
 public class JDBCResultColumn {
-    private String columnName;
-    private JDBCColumnType columnType;
-    private String columnClassName;
-    private String columnValue;
+  private String columnName;
+  private JDBCColumnType columnType;
+  private String columnClassName;
+  private String columnValue;
 }

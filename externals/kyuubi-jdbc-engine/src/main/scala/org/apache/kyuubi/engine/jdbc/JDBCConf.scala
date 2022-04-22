@@ -17,9 +17,9 @@
 
 package org.apache.kyuubi.engine.jdbc
 
-import org.apache.kyuubi.config.{ConfigBuilder, ConfigEntry, KyuubiConf}
-
 import java.time.Duration
+
+import org.apache.kyuubi.config.{ConfigBuilder, ConfigEntry, KyuubiConf}
 
 object JDBCConf {
   private def buildConf(key: String): ConfigBuilder = KyuubiConf.buildConf(key)

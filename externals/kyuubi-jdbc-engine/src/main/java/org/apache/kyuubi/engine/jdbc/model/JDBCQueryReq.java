@@ -8,5 +8,5 @@ import lombok.*;
 @Builder
 @EqualsAndHashCode
 public class JDBCQueryReq {
-    private String querySql;
+  private String querySql;
 }

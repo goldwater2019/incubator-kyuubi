@@ -17,7 +17,9 @@
 
 package org.apache.kyuubi.engine.jdbc.operation
 
-import org.apache.kyuubi.Logging
+import java.util.concurrent.RejectedExecutionException
+
+import org.apache.kyuubi.{KyuubiSQLException, Logging}
 import org.apache.kyuubi.engine.jdbc.JDBCStatement
 import org.apache.kyuubi.operation.{ArrayFetchIterator, IterableFetchIterator, OperationState, OperationType}
 import org.apache.kyuubi.operation.log.OperationLog
@@ -46,37 +48,36 @@ class JDBCExecuteStatement(
   override protected def runInternal(): Unit = {
     val jdbcStatement = JDBCStatement(jdbcContext, session.sessionManager.getConf, statement)
     jdbc = jdbcStatement.getJDBCClient
-    executeStatement(jdbcStatement)
-//    if (shouldRunAsync) {
-//      val asyncOperation = new Runnable {
-//        override def run(): Unit = {
-//          OperationLog.setCurrentOperationLog(operationLog)
-//          executeStatement(trinoStatement)
-//        }
-//      }
-//
-//      try {
-//        val trinoSessionManager = session.sessionManager
-//        val backgroundHandle = trinoSessionManager.submitBackgroundOperation(asyncOperation)
-//        setBackgroundHandle(backgroundHandle)
-//      } catch {
-//        case rejected: RejectedExecutionException =>
-//          setState(OperationState.ERROR)
-//          val ke =
-//            KyuubiSQLException("Error submitting query in background, query rejected", rejected)
-//          setOperationException(ke)
-//          throw ke
-//      }
-//    } else {
-//      executeStatement(trinoStatement)
-//    }
+    if (shouldRunAsync) {
+      val asyncOperation = new Runnable {
+        override def run(): Unit = {
+          OperationLog.setCurrentOperationLog(operationLog)
+          executeStatement(jdbcStatement)
+        }
+      }
+
+      try {
+        val jdbcSessionManager = session.sessionManager
+        val backgroundHandle = jdbcSessionManager.submitBackgroundOperation(asyncOperation)
+        setBackgroundHandle(backgroundHandle)
+      } catch {
+        case rejected: RejectedExecutionException =>
+          setState(OperationState.ERROR)
+          val ke =
+            KyuubiSQLException("Error submitting query in background, query rejected", rejected)
+          setOperationException(ke)
+          throw ke
+      }
+    } else {
+      executeStatement(jdbcStatement)
+    }
   }
 
   private def executeStatement(jdbcStatement: JDBCStatement): Unit = {
     setState(OperationState.RUNNING)
     try {
-      schema = jdbcStatement.getJDBCColumns
       val resultSet = jdbcStatement.execute()
+      schema = jdbcStatement.getJDBCColumns
       incrementalCollect = false
       iter =
         if (incrementalCollect) {

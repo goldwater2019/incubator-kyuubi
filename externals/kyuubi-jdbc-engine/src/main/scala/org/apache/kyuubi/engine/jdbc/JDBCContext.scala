@@ -19,7 +19,10 @@ package org.apache.kyuubi.engine.jdbc
 
 import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
 
-
 case class JDBCContext(jdbcEngineGatewayClientManager: JDBCEngineGatewayClientManager)
 
-
+object JDBCContext {
+  def apply(jdbcEngineGatewayClientManager: JDBCEngineGatewayClientManager): Unit = {
+    new JDBCContext(jdbcEngineGatewayClientManager)
+  }
+}

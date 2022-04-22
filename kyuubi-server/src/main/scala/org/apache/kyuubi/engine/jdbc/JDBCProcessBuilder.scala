@@ -28,8 +28,7 @@ import org.apache.kyuubi.engine.ProcBuilder
 import org.apache.kyuubi.engine.jdbc.JDBCProcessBuilder.{JDBC_ENGINE_BINARY_FILE, USER}
 import org.apache.kyuubi.operation.log.OperationLog
 
-
-class JDBCProcessBuilder (
+class JDBCProcessBuilder(
     override val proxyUser: String,
     override val conf: KyuubiConf,
     val extraEngineLog: Option[OperationLog] = None) extends ProcBuilder with Logging {
@@ -38,19 +37,18 @@ class JDBCProcessBuilder (
     assert(
       conf.get(ENGINE_JDBC_CONNECTION_URL).isDefined,
       throw KyuubiSQLException(
-        s"JDBC engine server url can not bu null! please set ${ENGINE_JDBC_CONNECTION_URL.key}"
-      )
-    )
+        s"JDBC engine server url can not bu null! please set ${ENGINE_JDBC_CONNECTION_URL.key}"))
     assert(
       conf.get(ENGINE_JDBC_QUERY_ROUTE).isDefined,
       throw KyuubiSQLException(
-        s"JDBC engine server query route can not bu null! please set ${ENGINE_JDBC_QUERY_ROUTE.key}"
-      )
-    )
+        "JDBC engine server query route can not bu null! " +
+          s"please set ${ENGINE_JDBC_QUERY_ROUTE.key}"))
     conf.getAll.filter {
-      case (k, v) => !k.startsWith("hadoop.") && !k.startsWith("spark.")
+      case (k, v) => !k.startsWith("hadoop.") && !k.startsWith("spark.") && !v.contains("*")
     } + (USER -> proxyUser)
   }
+
+  private[jdbc] var JDBC_ENGINE_HOME: String = ""
 
   override protected val executable: String = {
     val jdbcHomeOpt = env.get("JDBC_ENGINE_HOME").orElse {
@@ -59,12 +57,13 @@ class JDBCProcessBuilder (
       assert(cwd.length > 1)
       Option(
         Paths.get(cwd.head)
-          .resolve("external")
+          .resolve("externals")
           .resolve(module)
-          .toFile
-      ).map(
-        _.getAbsolutePath
-      )
+          .toFile).map(
+        _.getAbsolutePath)
+    }
+    if (jdbcHomeOpt.isDefined) {
+      JDBC_ENGINE_HOME = jdbcHomeOpt.get
     }
     jdbcHomeOpt.map {
       dir => Paths.get(dir, "bin", JDBC_ENGINE_BINARY_FILE).toAbsolutePath.toFile.getCanonicalPath
@@ -79,7 +78,7 @@ class JDBCProcessBuilder (
   override protected def mainResource: Option[String] = {
     val jarName = s"${module}_${SCALA_COMPILE_VERSION}-${KYUUBI_VERSION}.jar"
     // 1. get the main resource jar for user specified config
-    conf.get(ENGINE_JDBC_MAIN_RESOURCE).filter{ userSpecified =>
+    conf.get(ENGINE_JDBC_MAIN_RESOURCE).filter { userSpecified =>
       val uri = new URI(userSpecified)
       val schema = if (uri.getScheme != null) uri.getScheme else "file"
       schema match {
@@ -89,27 +88,29 @@ class JDBCProcessBuilder (
     }.orElse {
       // 2. get the main resource jar from system build default
       env.get(KyuubiConf.KYUUBI_HOME)
-        .map{ Paths.get(_, "externals", "engines", "jdbc", "jars", jarName)}
-        .filter{ Files.exists(_)}.map(_.toAbsolutePath.toFile.getCanonicalPath)
-    }.orElse{
+        .map { Paths.get(_, "externals", "engines", "jdbc", "jars", jarName) }
+        .filter { Files.exists(_) }.map(_.toAbsolutePath.toFile.getCanonicalPath)
+    }.orElse {
       // 3. get the main resource from dev environment
       Option(Paths.get("externals", module, "target", jarName))
-        .filter{Files.exists(_)}.orElse {
-        Some(Paths.get("..", "externals", module, "target", jarName))
-      }.map(_.toAbsolutePath.toFile.getCanonicalPath)
+        .filter { Files.exists(_) }.orElse {
+          Some(Paths.get("..", "externals", module, "target", jarName))
+        }.map(_.toAbsolutePath.toFile.getCanonicalPath)
     }
   };
 
   // TODO JDBC 侧自定义配置
   override protected def module: String = "kyuubi-jdbc-engine";
   // TODO engine侧的实现
-  override protected def mainClass: String = "org.apahe.kyuubi.engine.jdbc.JDBCSqlEngine";
+  override protected def mainClass: String = "org.apache.kyuubi.engine.jdbc.JDBCSqlEngine";
   // TODO 环境参数配置
   override protected def childProcEnv: Map[String, String] = conf.getEnvs +
+    ("JDBC_ENGINE_HOME" -> JDBC_ENGINE_HOME) +
     ("JDBC_ENGINE_JAR" -> mainResource.get) +
     ("JDBC_ENGINE_DYNAMIC_ARGS" ->
-      jdbcConf.map {
-        case(k, v) => s"-D$k=$v"
+      jdbcConf
+        .map {
+        case (k, v) => s"-D$k=$v"
       }.mkString(" "))
 
   override protected def commands: Array[String] = Array(executable);
@@ -124,7 +125,6 @@ class JDBCProcessBuilder (
   }.mkString(" ")
 
 }
-
 
 object JDBCProcessBuilder {
   final private val USER = "kyuubi.jdbc.user"

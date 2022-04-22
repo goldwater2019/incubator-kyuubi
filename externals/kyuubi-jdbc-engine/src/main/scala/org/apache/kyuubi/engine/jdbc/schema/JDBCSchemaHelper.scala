@@ -25,7 +25,6 @@ import org.apache.hive.service.rpc.thrift._
 import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType
 import org.apache.kyuubi.engine.jdbc.model.JDBCColumn
 
-
 object JDBCSchemaHelper {
 
   /**
@@ -78,16 +77,14 @@ object JDBCSchemaHelper {
           TCLIServiceConstants.PRECISION ->
             TTypeQualifierValue.i32Value(32),
           TCLIServiceConstants.SCALE ->
-            TTypeQualifierValue.i32Value(3)
-        )
+            TTypeQualifierValue.i32Value(3))
           .asJava
       case JDBCColumnType.NUMERIC =>
         Map(
           TCLIServiceConstants.PRECISION ->
             TTypeQualifierValue.i32Value(32),
           TCLIServiceConstants.SCALE ->
-            TTypeQualifierValue.i32Value(3)
-        )
+            TTypeQualifierValue.i32Value(3))
           .asJava
       case _ => Collections.emptyMap[String, TTypeQualifierValue]()
     }

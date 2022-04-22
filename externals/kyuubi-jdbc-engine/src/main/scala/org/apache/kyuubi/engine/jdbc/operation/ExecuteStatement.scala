@@ -18,6 +18,7 @@
 package org.apache.kyuubi.engine.jdbc.operation
 
 import java.util.concurrent.RejectedExecutionException
+
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.Logging
 import org.apache.kyuubi.engine.jdbc.TrinoStatement

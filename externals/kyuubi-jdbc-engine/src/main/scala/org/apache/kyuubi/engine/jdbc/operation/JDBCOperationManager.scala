@@ -26,17 +26,16 @@ import org.apache.kyuubi.config.KyuubiConf.OPERATION_INCREMENTAL_COLLECT
 import org.apache.kyuubi.operation.{Operation, OperationManager}
 import org.apache.kyuubi.session.Session
 
-
 class JDBCOperationManager extends OperationManager("JDBCOperationManager") {
 
   def newExecuteStatementOperation(
-                                    session: Session,
-                                    statement: String,
-                                    confOverlay: Map[String, String],
-                                    runAsync: Boolean,
-                                    queryTimeout: Long): Operation = {
+      session: Session,
+      statement: String,
+      confOverlay: Map[String, String],
+      runAsync: Boolean,
+      queryTimeout: Long): Operation = {
     val incrementalCollect = session.sessionManager.getConf.get(OPERATION_INCREMENTAL_COLLECT)
-    val operation = new ExecuteStatement(session, statement, runAsync, incrementalCollect)
+    val operation = new JDBCExecuteStatement(session, statement, runAsync, incrementalCollect)
     addOperation(operation)
   }
 
@@ -51,19 +50,19 @@ class JDBCOperationManager extends OperationManager("JDBCOperationManager") {
   }
 
   override def newGetSchemasOperation(
-                                       session: Session,
-                                       catalog: String,
-                                       schema: String): Operation = {
+      session: Session,
+      catalog: String,
+      schema: String): Operation = {
     val op = new GetSchemas(session, catalog, schema)
     addOperation(op)
   }
 
   override def newGetTablesOperation(
-                                      session: Session,
-                                      catalogName: String,
-                                      schemaName: String,
-                                      tableName: String,
-                                      tableTypes: util.List[String]): Operation = {
+      session: Session,
+      catalogName: String,
+      schemaName: String,
+      tableName: String,
+      tableTypes: util.List[String]): Operation = {
     val tTypes =
       if (tableTypes == null || tableTypes.isEmpty) {
         Set("TABLE", "VIEW")
@@ -80,20 +79,20 @@ class JDBCOperationManager extends OperationManager("JDBCOperationManager") {
   }
 
   override def newGetColumnsOperation(
-                                       session: Session,
-                                       catalogName: String,
-                                       schemaName: String,
-                                       tableName: String,
-                                       columnName: String): Operation = {
+      session: Session,
+      catalogName: String,
+      schemaName: String,
+      tableName: String,
+      columnName: String): Operation = {
     val op = new GetColumns(session, catalogName, schemaName, tableName, columnName)
     addOperation(op)
   }
 
   override def newGetFunctionsOperation(
-                                         session: Session,
-                                         catalogName: String,
-                                         schemaName: String,
-                                         functionName: String): Operation = {
+      session: Session,
+      catalogName: String,
+      schemaName: String,
+      functionName: String): Operation = {
     // TODO: Supports the GetFunctions operation when JDBC supports the query of the functions.
     throw KyuubiSQLException.featureNotSupported()
   }

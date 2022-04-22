@@ -14,16 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.apache.kyuubi.engine.jdbc
 
-import org.apache.kyuubi.engine.jdbc.session.JDBCSessionManager
-import org.apache.kyuubi.service.AbstractBackendService
-import org.apache.kyuubi.session.SessionManager
+import org.apache.kyuubi.KyuubiFunSuite
+import org.apache.kyuubi.config.KyuubiConf
+import org.apache.kyuubi.engine.jdbc.client.JDBCEngineGatewayClientManager
 
-class JDBCBackendService
-  extends AbstractBackendService("JDBCBackendService") {
+trait WithJDBCContainerServer extends KyuubiFunSuite{
+  val kyuubiConf: KyuubiConf = KyuubiConf()
 
-  override val sessionManager: SessionManager = new JDBCSessionManager()
+  private val manager: JDBCEngineGatewayClientManager = JDBCEngineGatewayClientManager.getInstance()
 
+  def getJDBCContext(): JDBCContext = {
+    new JDBCContext(manager)
+  }
 }

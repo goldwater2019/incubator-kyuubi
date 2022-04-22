@@ -28,6 +28,8 @@ import scala.concurrent.Future
 import scala.concurrent.duration
 import scala.concurrent.duration.Duration
 
+import TrinoConf.DATA_PROCESSING_POOL_SIZE
+import TrinoStatement._
 import com.google.common.base.Verify
 import io.trino.client.ClientSession
 import io.trino.client.Column
@@ -36,8 +38,6 @@ import io.trino.client.StatementClientFactory
 
 import org.apache.kyuubi.KyuubiSQLException
 import org.apache.kyuubi.config.KyuubiConf
-import TrinoConf.DATA_PROCESSING_POOL_SIZE
-import TrinoStatement._
 
 /**
  * Trino client communicate with trino cluster.

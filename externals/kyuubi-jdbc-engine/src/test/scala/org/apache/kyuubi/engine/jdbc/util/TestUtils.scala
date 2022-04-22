@@ -17,52 +17,24 @@
 
 package org.apache.kyuubi.engine.jdbc.util
 
-import java.util.Optional
+import org.apache.kyuubi.engine.jdbc.enumeration.JDBCColumnType
+import org.apache.kyuubi.engine.jdbc.model.JDBCColumn
 
-import scala.collection.JavaConverters._
-
-import io.trino.client.ClientStandardTypes._
-import io.trino.client.ClientTypeSignature
-import io.trino.client.ClientTypeSignatureParameter
-import io.trino.client.Column
-import io.trino.client.NamedClientTypeSignature
-import io.trino.client.RowFieldName
-
+/**
+ * 用于类型schema的测试工具类
+ */
 object TestUtils {
+  lazy val decimalTypeColumn: JDBCColumn = {  // decimal类型
+    val column = new JDBCColumn()
+    column.setJdbcColumnName("decimalCol")
+    column.setJdbcColumnType(JDBCColumnType.DECIMAL)
+    column
+  }
 
-  lazy val decimalTypeSignature: ClientTypeSignature = new ClientTypeSignature(
-    DECIMAL,
-    List(
-      ClientTypeSignatureParameter.ofLong(10),
-      ClientTypeSignatureParameter.ofLong(8)).asJava)
-
-  lazy val arrayTypeSignature: ClientTypeSignature = new ClientTypeSignature(
-    ARRAY,
-    List(ClientTypeSignatureParameter.ofType(new ClientTypeSignature(DOUBLE))).asJava)
-
-  lazy val mapTypeSignature: ClientTypeSignature = new ClientTypeSignature(
-    MAP,
-    List(
-      ClientTypeSignatureParameter.ofType(new ClientTypeSignature(INTEGER)),
-      ClientTypeSignatureParameter.ofType(new ClientTypeSignature(DOUBLE))).asJava)
-
-  lazy val rowTypeSignature: ClientTypeSignature = new ClientTypeSignature(
-    ROW,
-    List(
-      ClientTypeSignatureParameter.ofNamedType(
-        new NamedClientTypeSignature(
-          Optional.of(new RowFieldName("foo")),
-          new ClientTypeSignature(VARCHAR))),
-      ClientTypeSignatureParameter.ofNamedType(
-        new NamedClientTypeSignature(
-          Optional.of(new RowFieldName("bar")),
-          mapTypeSignature))).asJava)
-
-  lazy val textTypeSignature: ClientTypeSignature = new ClientTypeSignature("text")
-
-  def column(name: String, tp: String): Column = column(name, tp, new ClientTypeSignature(tp))
-
-  def column(name: String, tp: String, signature: ClientTypeSignature): Column = {
-    new Column(name, tp, signature)
+  lazy val arrayTypeColumn: JDBCColumn = {  // array类型
+    val column = new JDBCColumn()
+    column.setJdbcColumnName("arrayCol")
+    column.setJdbcColumnType(JDBCColumnType.ARRAY)
+    column
   }
 }

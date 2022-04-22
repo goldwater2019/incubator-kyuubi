@@ -20,6 +20,7 @@ package org.apache.kyuubi.engine.jdbc.operation
 import scala.collection.mutable.ArrayBuffer
 
 import org.apache.commons.lang3.StringUtils
+
 import org.apache.kyuubi.engine.jdbc.TrinoStatement
 import org.apache.kyuubi.operation.{IterableFetchIterator, OperationType}
 import org.apache.kyuubi.operation.meta.ResultSetSchemaConstant.{COLUMN_NAME, TABLE_CAT, TABLE_NAME, TABLE_SCHEM}

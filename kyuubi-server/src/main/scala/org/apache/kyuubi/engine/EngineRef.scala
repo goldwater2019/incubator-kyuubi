@@ -37,12 +37,11 @@ import org.apache.kyuubi.config.KyuubiReservedKeys.KYUUBI_ENGINE_SUBMIT_TIME_KEY
 import org.apache.kyuubi.engine.EngineType.{EngineType, FLINK_SQL, JDBC_ENGINE, SPARK_SQL, TRINO}
 import org.apache.kyuubi.engine.ShareLevel.{CONNECTION, GROUP, SERVER, ShareLevel}
 import org.apache.kyuubi.engine.flink.FlinkProcessBuilder
+import org.apache.kyuubi.engine.jdbc.JDBCProcessBuilder
 import org.apache.kyuubi.engine.spark.SparkProcessBuilder
 import org.apache.kyuubi.engine.trino.TrinoProcessBuilder
-import org.apache.kyuubi.ha.HighAvailabilityConf.HA_ZK_ENGINE_REF_ID
-import org.apache.kyuubi.ha.HighAvailabilityConf.HA_ZK_NAMESPACE
-import org.apache.kyuubi.ha.client.ServiceDiscovery.getEngineByRefId
-import org.apache.kyuubi.ha.client.ServiceDiscovery.getServerHost
+import org.apache.kyuubi.ha.HighAvailabilityConf.{HA_ZK_ENGINE_REF_ID, HA_ZK_NAMESPACE}
+import org.apache.kyuubi.ha.client.ServiceDiscovery.{getEngineByRefId, getServerHost}
 import org.apache.kyuubi.metrics.MetricsConstants.{ENGINE_FAIL, ENGINE_TIMEOUT, ENGINE_TOTAL}
 import org.apache.kyuubi.metrics.MetricsSystem
 import org.apache.kyuubi.operation.log.OperationLog
@@ -50,8 +49,8 @@ import org.apache.kyuubi.operation.log.OperationLog
 /**
  * The description and functionality of an engine at server side
  *
- * @param conf Engine configuration
- * @param user Caller of the engine
+ * @param conf        Engine configuration
+ * @param user        Caller of the engine
  * @param engineRefId Id of the corresponding session in which the engine is created
  */
 private[kyuubi] class EngineRef(
@@ -171,32 +170,21 @@ private[kyuubi] class EngineRef(
       }
   };
 
-  /**
-   * 通过KyuubiServer层面appUser和配置的匹配规则进行判断, 是否需要进入到JDBC引擎中
-   * @param appUser
-   * @param engineType
-   * @param conf
-   * @return
-   */
-  def checkoutRealEngineType(appUser: String,
-                             engineType: EngineType,
-                             conf: KyuubiConf):
-  EngineType = {
+  def checkoutRealEngineType(
+      appUser: String,
+      engineType: EngineType,
+      conf: KyuubiConf): EngineType = {
     val jdbcEngineUserPatterns = conf.get(ENGINE_JDBC_USER_PATTERNS).getOrElse("")
-    val patternArray : Array[String] = jdbcEngineUserPatterns.split(",").map(
-      x => x.trim
-    ).filter(
-      x => x.nonEmpty
-    )
+    val patternArray: Array[String] =
+      jdbcEngineUserPatterns.split(",").map(x => x.trim).filter(x => x.nonEmpty)
 
-    val hitPatternArray: Array[String] = patternArray.filter(
-      pattern => {
-        new Regex(pattern).findFirstIn(appUser).nonEmpty
-      }
-    )
+    val hitPatternArray: Array[String] = patternArray.filter(pattern => {
+      new Regex(pattern).findFirstIn(appUser).nonEmpty
+    })
 
     if (hitPatternArray.length > 0) {
-      EngineType.JDBC_ENGINE
+       EngineType.JDBC_ENGINE
+//      EngineType.TRINO
     } else {
       engineType
     }
@@ -238,8 +226,7 @@ private[kyuubi] class EngineRef(
       case TRINO =>
         new TrinoProcessBuilder(appUser, conf, extraEngineLog)
       case JDBC_ENGINE =>
-        new TrinoProcessBuilder(appUser, conf, extraEngineLog);
-        // TODO 使用JDBCProcessBuilder进行process的构建
+        new JDBCProcessBuilder(appUser, conf, extraEngineLog);
     }
 
     MetricsSystem.tracing(_.incCount(ENGINE_TOTAL))

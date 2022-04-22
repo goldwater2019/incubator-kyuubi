@@ -115,6 +115,7 @@ function start_kyuubi() {
   kyuubi_rotate_log ${log}
 
   echo "Starting $CLASS, logging to $log"
+  echo "${KYUUBI_NICENESS:-0}" ${cmd}
   nohup nice -n "${KYUUBI_NICENESS:-0}" ${cmd} >> ${log} 2>&1 < /dev/null &
   newpid="$!"
 

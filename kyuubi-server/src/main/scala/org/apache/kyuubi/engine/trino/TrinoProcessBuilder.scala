@@ -50,9 +50,11 @@ class TrinoProcessBuilder(
           s" Please set ${ENGINE_TRINO_CONNECTION_CATALOG.key}"))
 
     conf.getAll.filter { case (k, v) =>
-      !k.startsWith("spark.") && !k.startsWith("hadoop.")
+      !k.startsWith("spark.") && !k.startsWith("hadoop.") && !v.contains("*")
     } + (USER -> proxyUser)
   }
+
+  private[trino] var TRINO_ENGINE_HOME: String = ""
 
   override protected val executable: String = {
     val trinoHomeOpt = env.get("TRINO_ENGINE_HOME").orElse {
@@ -65,6 +67,10 @@ class TrinoProcessBuilder(
           .resolve(module)
           .toFile)
         .map(_.getAbsolutePath)
+    }
+
+    if (trinoHomeOpt.isDefined) {
+      TRINO_ENGINE_HOME = trinoHomeOpt.get
     }
 
     trinoHomeOpt.map { dir =>
@@ -106,6 +112,7 @@ class TrinoProcessBuilder(
   override protected def mainClass: String = "org.apache.kyuubi.engine.trino.TrinoSqlEngine"
 
   override protected def childProcEnv: Map[String, String] = conf.getEnvs +
+    ("TRINO_ENGINE_HOME" -> TRINO_ENGINE_HOME) +
     ("TRINO_ENGINE_JAR" -> mainResource.get) +
     ("TRINO_ENGINE_DYNAMIC_ARGS" ->
       trinoConf.map { case (k, v) => s"-D$k=$v" }.mkString(" "))
